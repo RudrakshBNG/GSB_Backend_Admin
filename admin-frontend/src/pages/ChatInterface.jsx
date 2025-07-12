@@ -197,11 +197,42 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         },
       });
 
-      // Read response body only once
-      const responseData = await fetchResponse.json();
+      console.log("Fetch response received:", {
+        status: fetchResponse.status,
+        ok: fetchResponse.ok,
+        bodyUsed: fetchResponse.bodyUsed,
+      });
+
+      let responseData;
+      try {
+        // Safely read response body
+        if (!fetchResponse.bodyUsed) {
+          responseData = await fetchResponse.json();
+        } else {
+          console.warn("Response body already used");
+          responseData = { message: "Response body already read" };
+        }
+      } catch (jsonError) {
+        console.error("JSON parsing error:", jsonError);
+        // Try to read as text if JSON fails
+        try {
+          if (!fetchResponse.bodyUsed) {
+            const textData = await fetchResponse.text();
+            responseData = { message: textData || fetchResponse.statusText };
+          } else {
+            responseData = {
+              message: fetchResponse.statusText || "Unknown error",
+            };
+          }
+        } catch (textError) {
+          console.error("Text reading error:", textError);
+          responseData = {
+            message: fetchResponse.statusText || "Unknown error",
+          };
+        }
+      }
 
       if (!fetchResponse.ok) {
-        // Response body already read, so use the data we have
         throw {
           response: {
             data: responseData,
@@ -211,7 +242,7 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         };
       }
 
-      // Success case - use the already read data
+      // Success case
       const response = {
         data: responseData,
         status: fetchResponse.status,

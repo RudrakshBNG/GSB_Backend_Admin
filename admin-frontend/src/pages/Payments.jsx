@@ -172,6 +172,7 @@ const Payments = () => {
               <th>Type</th>
               <th>Method</th>
               <th>Transaction ID</th>
+              <th>Easebuzz ID</th>
               <th>Date</th>
               <th>Status</th>
             </tr>

@@ -12,6 +12,7 @@ module.exports = function (server) {
         "https://apis.gsbpathy.com",
         "https://main.d13yqss2i4o49v.amplifyapp.com",
         "https://admin.gsbpathy.com",
+        "https://74c479b6a8d640b4b7bb7800e74a8fe9-8ef734e1b71d48d881c634dc0.fly.dev",
       ],
       methods: ["GET", "POST"],
       credentials: true,

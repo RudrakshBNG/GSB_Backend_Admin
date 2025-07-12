@@ -111,6 +111,24 @@ const DailyUpdates = () => {
     ).length;
   };
 
+  const handleViewUserUpdates = async (userId) => {
+    try {
+      const user = users[userId];
+      if (!user) return;
+
+      // Get all updates for this user
+      const userSpecificUpdates = dailyUpdates.filter(
+        (update) => update.userId === userId,
+      );
+      setSelectedUser(user);
+      setUserUpdates(userSpecificUpdates);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error loading user updates:", error);
+      alert("Failed to load user updates.");
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading daily updates...</div>;
   }

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { RefreshCw, Image, User, Calendar, Star } from "lucide-react";
+import {
+  RefreshCw,
+  Image,
+  User,
+  Calendar,
+  Star,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -38,7 +46,7 @@ const UserStories = () => {
   const cleanupDemoData = async () => {
     if (
       window.confirm(
-        "Are you sure you want to remove all demo stories with broken images? This action cannot be undone."
+        "Are you sure you want to remove all demo stories with broken images? This action cannot be undone.",
       )
     ) {
       try {
@@ -140,7 +148,7 @@ const UserStories = () => {
                       onError={(e) => {
                         console.error(
                           "Failed to load before image:",
-                          story.beforeImageUrl
+                          story.beforeImageUrl,
                         );
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "block";
@@ -167,7 +175,7 @@ const UserStories = () => {
                       onError={(e) => {
                         console.error(
                           "Failed to load after image:",
-                          story.afterImageUrl
+                          story.afterImageUrl,
                         );
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "block";

@@ -320,6 +320,204 @@ const DailyUpdates = () => {
           </tbody>
         </table>
       </div>
+
+      {/* User Updates Modal */}
+      {showModal && selectedUser && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "var(--card-bg)",
+              padding: "30px",
+              borderRadius: "12px",
+              width: "90%",
+              maxWidth: "800px",
+              maxHeight: "80vh",
+              border: "1px solid var(--border-color)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+                borderBottom: "1px solid var(--border-color)",
+                paddingBottom: "15px",
+              }}
+            >
+              <h2 style={{ color: "var(--primary-gold)", margin: 0 }}>
+                <User size={24} style={{ marginRight: "10px" }} />
+                All Updates from {selectedUser.fullName}
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-gray)",
+                  cursor: "pointer",
+                  padding: "5px",
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* User Info */}
+            <div
+              style={{
+                background: "var(--background-dark)",
+                padding: "15px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <p style={{ margin: "0 0 5px 0", color: "var(--text-white)" }}>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p style={{ margin: 0, color: "var(--text-gray)" }}>
+                <strong>Total Updates:</strong> {userUpdates.length}
+              </p>
+            </div>
+
+            {/* Updates List */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                maxHeight: "400px",
+              }}
+            >
+              {userUpdates.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    color: "var(--text-gray)",
+                  }}
+                >
+                  No updates found for this user.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px",
+                  }}
+                >
+                  {userUpdates.map((update, index) => (
+                    <div
+                      key={update._id || index}
+                      style={{
+                        background: "var(--background-dark)",
+                        padding: "20px",
+                        borderRadius: "8px",
+                        border: "1px solid var(--border-color)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <h4 style={{ color: "var(--primary-gold)", margin: 0 }}>
+                          {update.title || "Untitled"}
+                        </h4>
+                        <span
+                          style={{
+                            color: "var(--text-gray)",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          {formatDate(update.createdAt)}
+                        </span>
+                      </div>
+
+                      <p
+                        style={{
+                          color: "var(--text-white)",
+                          marginBottom: "15px",
+                          lineHeight: "1.5",
+                        }}
+                      >
+                        {update.description || "No description"}
+                      </p>
+
+                      {update.imageUrl && (
+                        <div style={{ textAlign: "center" }}>
+                          <img
+                            src={update.imageUrl}
+                            alt="Update image"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "200px",
+                              objectFit: "contain",
+                              borderRadius: "8px",
+                              border: "1px solid var(--border-color)",
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: "none",
+                              padding: "20px",
+                              color: "var(--text-gray)",
+                              textAlign: "center",
+                            }}
+                          >
+                            Failed to load image
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                marginTop: "20px",
+                paddingTop: "15px",
+                borderTop: "1px solid var(--border-color)",
+                textAlign: "right",
+              }}
+            >
+              <button
+                onClick={() => setShowModal(false)}
+                className="btn btn-secondary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

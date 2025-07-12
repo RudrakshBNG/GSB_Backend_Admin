@@ -140,42 +140,84 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
     try {
       setSending(true);
 
-      // Temporarily disable file uploads to fix FormData issues
-      if (selectedFile) {
-        alert(
-          "File upload temporarily disabled. Please send text messages only.",
-        );
+      // Check if we have content to send
+      if (!newMessage.trim() && !selectedFile) {
+        alert("Please enter a message or select a file to send.");
         setSending(false);
         return;
       }
 
-      // Check if we have text content to send
-      if (!newMessage.trim()) {
-        alert("Please enter a message to send.");
-        setSending(false);
-        return;
-      }
-
-      console.log("=== SENDING TEXT MESSAGE ===");
+      console.log("=== SENDING MESSAGE ===");
       console.log("Chat ID:", chatId);
       console.log("Message:", newMessage.trim());
+      console.log("Selected file:", selectedFile);
       console.log("Agent ID:", (currentUser || user)?._id || "admin");
       console.log("===============================");
 
-      // Use simple JSON request since we're only sending text
-      const response = await axios.post(
-        `${API_BASE}/chat/${chatId}/reply`,
-        {
-          text: newMessage.trim(),
-          agentId: (currentUser || user)?._id || "admin",
-        },
-        {
+      let response;
+
+      if (selectedFile) {
+        // Use FormData for file uploads
+        const formData = new FormData();
+
+        // Add text field
+        formData.append("text", newMessage.trim() || "");
+
+        // Add agentId
+        formData.append("agentId", (currentUser || user)?._id || "admin");
+
+        // Add file with correct field name based on type
+        let fieldName = "image"; // default
+        if (selectedFile.type.startsWith("video/")) {
+          fieldName = "video";
+        } else if (selectedFile.type === "application/pdf") {
+          fieldName = "pdfFile";
+        }
+
+        console.log(`Adding file as: ${fieldName}, type: ${selectedFile.type}`);
+        formData.append(fieldName, selectedFile);
+
+        // Use fetch for FormData to avoid axios issues
+        const fetchResponse = await fetch(`${API_BASE}/chat/${chatId}/reply`, {
+          method: "POST",
+          body: formData,
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
+            // Don't set Content-Type - let browser handle multipart boundary
           },
-        },
-      );
+        });
+
+        if (!fetchResponse.ok) {
+          const errorData = await fetchResponse.json().catch(() => ({
+            message: fetchResponse.statusText || "Upload failed",
+          }));
+          throw {
+            response: {
+              data: errorData,
+              status: fetchResponse.status,
+              statusText: fetchResponse.statusText,
+            },
+          };
+        }
+
+        const responseData = await fetchResponse.json();
+        response = { data: responseData, status: fetchResponse.status };
+      } else {
+        // Use JSON for text-only messages
+        response = await axios.post(
+          `${API_BASE}/chat/${chatId}/reply`,
+          {
+            text: newMessage.trim(),
+            agentId: (currentUser || user)?._id || "admin",
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
+            },
+          },
+        );
+      }
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

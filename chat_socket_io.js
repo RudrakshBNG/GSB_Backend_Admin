@@ -73,16 +73,21 @@ module.exports = function (server) {
   });
 
   io.on("connection", (socket) => {
-    console.log(
-      `✅ New client connected: ${socket.id} (User: ${socket.userId})`,
-    );
+    try {
+      console.log(
+        `✅ New client connected: ${socket.id} (User: ${socket.userId})`,
+      );
 
-    // Send a welcome message to confirm connection
-    socket.emit("welcome", {
-      message: "Connected to GSB Admin Chat Server",
-      socketId: socket.id,
-      timestamp: new Date().toISOString(),
-    });
+      // Send a welcome message to confirm connection
+      socket.emit("welcome", {
+        message: "Connected to GSB Admin Chat Server",
+        socketId: socket.id,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("❌ Error in connection handler:", err);
+      socket.emit("error", { message: "Connection handler error" });
+    }
 
     socket.on("error", (error) => {
       console.error(`❌ Socket error for ${socket.id}:`, error);

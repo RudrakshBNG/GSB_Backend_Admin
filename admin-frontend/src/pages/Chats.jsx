@@ -153,6 +153,7 @@ const Chats = () => {
       return () => {
         if (socketClient) {
           socketClient.off("connect");
+          socketClient.off("welcome");
           socketClient.off("disconnect");
           socketClient.off("connect_error");
           socketClient.off("reconnect");

@@ -1,0 +1,890 @@
+{
+  "info": {
+    "name": "GSB Admin API Collection",
+    "description": "Comprehensive API collection for GSB (Get Set Bro) Admin Panel",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "apiBase",
+      "value": "{{baseUrl}}/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gsbpathy.com\",\n  \"password\": \"gsbpathy123\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/auth/login",
+              "host": ["{{apiBase}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Verify Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/auth/verify",
+              "host": ["{{apiBase}}"],
+              "path": ["auth", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/user",
+              "host": ["{{apiBase}}"],
+              "path": ["user"]
+            }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/user/:userId",
+              "host": ["{{apiBase}}"],
+              "path": ["user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\",\n  \"age\": 30,\n  \"weight\": 70,\n  \"height\": 175,\n  \"goal\": \"Weight Loss\",\n  \"score\": 85,\n  \"flag\": \"green\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/user/:userId",
+              "host": ["{{apiBase}}"],
+              "path": ["user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Stories",
+      "item": [
+        {
+          "name": "Get All Stories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/stories",
+              "host": ["{{apiBase}}"],
+              "path": ["stories"]
+            }
+          }
+        },
+        {
+          "name": "Add New Story",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "My Transformation Story",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Lost 20kg in 6 months with GSB programs",
+                  "type": "text"
+                },
+                {
+                  "key": "beforeImage",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "afterImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiBase}}/stories",
+              "host": ["{{apiBase}}"],
+              "path": ["stories"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consultations",
+      "item": [
+        {
+          "name": "Get All Consultations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/consultancy/all",
+              "host": ["{{apiBase}}"],
+              "path": ["consultancy", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Consultation by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/consultancy/:id",
+              "host": ["{{apiBase}}"],
+              "path": ["consultancy", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CONSULTATION_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit Consultation Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+919876543215\",\n  \"message\": \"I need help with weight loss plan\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/consultancy/submit",
+              "host": ["{{apiBase}}"],
+              "path": ["consultancy", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Update Consultation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in-progress\",\n  \"assignedTo\": \"TEAM_MEMBER_ID\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/consultancy/:id",
+              "host": ["{{apiBase}}"],
+              "path": ["consultancy", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "CONSULTATION_ID_HERE"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders Management",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/orders",
+              "host": ["{{apiBase}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/orders/user/:userId",
+              "host": ["{{apiBase}}"],
+              "path": ["orders", "user", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Place New Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"contactInfo\": {\n    \"name\": \"John Doe\",\n    \"phone\": \"+919876543210\",\n    \"address\": \"123 Main Street, City, State 12345\"\n  },\n  \"paymentMethod\": \"Credit Card\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/orders/place-order",
+              "host": ["{{apiBase}}"],
+              "path": ["orders", "place-order"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Daily Updates",
+      "item": [
+        {
+          "name": "Get All Daily Updates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/daily-updates",
+              "host": ["{{apiBase}}"],
+              "path": ["daily-updates"]
+            }
+          }
+        },
+        {
+          "name": "Add Daily Update",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "My Workout Update",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Completed my morning workout routine",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiBase}}/daily-updates",
+              "host": ["{{apiBase}}"],
+              "path": ["daily-updates"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/payments",
+              "host": ["{{apiBase}}"],
+              "path": ["payments"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Analytics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/payments/analytics",
+              "host": ["{{apiBase}}"],
+              "path": ["payments", "analytics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/products",
+              "host": ["{{apiBase}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/products/:id",
+              "host": ["{{apiBase}}"],
+              "path": ["products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "PRODUCT_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add New Product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "New Supplement",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "High quality supplement for fitness",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "2999",
+                  "type": "text"
+                },
+                {
+                  "key": "stock",
+                  "value": "50",
+                  "type": "text"
+                },
+                {
+                  "key": "ingredients",
+                  "value": "[\"Ingredient 1\", \"Ingredient 2\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "benefits",
+                  "value": "[\"Benefit 1\", \"Benefit 2\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiBase}}/products",
+              "host": ["{{apiBase}}"],
+              "path": ["products"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Videos",
+      "item": [
+        {
+          "name": "Get All Videos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/videos",
+              "host": ["{{apiBase}}"],
+              "path": ["videos"]
+            }
+          }
+        },
+        {
+          "name": "Get Video by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/videos/:id",
+              "host": ["{{apiBase}}"],
+              "path": ["videos", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "VIDEO_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add New Video",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "New Workout Video",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Advanced workout routine",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Fitness",
+                  "type": "text"
+                },
+                {
+                  "key": "accessLevel",
+                  "value": "Paid",
+                  "type": "text"
+                },
+                {
+                  "key": "youtubeLink",
+                  "value": "https://youtube.com/watch?v=example",
+                  "type": "text"
+                },
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiBase}}/videos",
+              "host": ["{{apiBase}}"],
+              "path": ["videos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Diet Plans (PDFs)",
+      "item": [
+        {
+          "name": "Get All Diet Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/dietplans",
+              "host": ["{{apiBase}}"],
+              "path": ["dietplans"]
+            }
+          }
+        },
+        {
+          "name": "Get Diet Plan by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/dietplans/:id",
+              "host": ["{{apiBase}}"],
+              "path": ["dietplans", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "DIET_PLAN_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add New Diet Plan",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "New Diet Plan",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Comprehensive nutrition guide",
+                  "type": "text"
+                },
+                {
+                  "key": "pdf",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{apiBase}}/dietplans",
+              "host": ["{{apiBase}}"],
+              "path": ["dietplans"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team Management",
+      "item": [
+        {
+          "name": "Get All Team Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/teams",
+              "host": ["{{apiBase}}"],
+              "path": ["teams"]
+            }
+          }
+        },
+        {
+          "name": "Add Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"New Team Member\",\n  \"email\": \"member@gsbpathy.com\",\n  \"password\": \"gsbpathy123\",\n  \"department\": \"Customer Support\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/teams",
+              "host": ["{{apiBase}}"],
+              "path": ["teams"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chats",
+      "item": [
+        {
+          "name": "Get All Chats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/chat",
+              "host": ["{{apiBase}}"],
+              "path": ["chat"]
+            }
+          }
+        },
+        {
+          "name": "Get Chat by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/chat/:chatId",
+              "host": ["{{apiBase}}"],
+              "path": ["chat", ":chatId"],
+              "variable": [
+                {
+                  "key": "chatId",
+                  "value": "CHAT_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chatId\": \"CHAT_ID_HERE\",\n  \"sender\": \"agent\",\n  \"text\": \"Thank you for contacting us!\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/chat/send",
+              "host": ["{{apiBase}}"],
+              "path": ["chat", "send"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/notifications",
+              "host": ["{{apiBase}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "Send Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Announcement\",\n  \"message\": \"Check out our latest updates!\",\n  \"recipients\": \"All Users\"\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/notifications",
+              "host": ["{{apiBase}}"],
+              "path": ["notifications"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cart Management",
+      "item": [
+        {
+          "name": "Get User Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/cart/:userId",
+              "host": ["{{apiBase}}"],
+              "path": ["cart", ":userId"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"productId\": \"PRODUCT_ID_HERE\",\n  \"name\": \"Product Name\",\n  \"price\": 2999,\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{apiBase}}/cart/add",
+              "host": ["{{apiBase}}"],
+              "path": ["cart", "add"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mock Data",
+      "item": [
+        {
+          "name": "Add Mock Data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/mock/add-mock-data",
+              "host": ["{{apiBase}}"],
+              "path": ["mock", "add-mock-data"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "API Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{apiBase}}/health",
+              "host": ["{{apiBase}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Server Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request script for authentication",
+          "// You can add auth token automatically here if needed"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Test script for response validation",
+          "pm.test(\"Status code is successful\", function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

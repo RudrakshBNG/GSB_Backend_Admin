@@ -51,25 +51,27 @@ const Chats = () => {
     loadChats();
     loadTeamMembers();
 
-    // Initialize Socket.IO client with fallback
+    // Initialize Socket.IO client with comprehensive debugging
     if (API_BASE && currentUser) {
-      console.log("🔌 Initializing Socket.IO connection to:", API_BASE);
+      console.log("🔌 Initializing Socket.IO connection...");
+      console.log("API_BASE:", API_BASE);
+      console.log("Current User:", currentUser);
+
       const socketClient = io(API_BASE, {
         path: "/socket.io",
         withCredentials: true,
-        transports: ["polling", "websocket"],
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
-        forceNew: false,
+        transports: ["polling"], // Start with polling only for debugging
+        reconnection: false, // Disable reconnection for debugging
+        timeout: 10000,
+        forceNew: true,
         autoConnect: true,
         auth: {
           userId: currentUser._id || "admin",
           email: currentUser.email || "admin@example.com",
         },
       });
+
+      console.log("📡 Socket.IO client created:", socketClient);
 
       setSocket(socketClient);
 

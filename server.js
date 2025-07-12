@@ -86,6 +86,7 @@ const videoCategoryRoutes = require("./routes/videoCategoryRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/stories", storyRoutes);

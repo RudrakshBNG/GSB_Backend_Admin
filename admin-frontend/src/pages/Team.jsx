@@ -791,8 +791,210 @@ const Team = () => {
           </div>
         </div>
       )}
+
+      {/* Permissions Modal */}
+      {showPermissionsModal && permissionsMember && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "var(--card-bg)",
+              padding: "30px",
+              borderRadius: "12px",
+              width: "90%",
+              maxWidth: "600px",
+              border: "1px solid var(--border-color)",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <h2 style={{ color: "var(--primary-gold)", marginBottom: "20px" }}>
+              <Shield size={24} style={{ marginRight: "10px" }} />
+              Permissions for {permissionsMember.fullName}
+            </h2>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label
+                style={{
+                  color: "var(--text-white)",
+                  marginBottom: "10px",
+                  display: "block",
+                }}
+              >
+                Role
+              </label>
+              <select
+                value={permissionsMember.role || "team_member"}
+                onChange={(e) =>
+                  setPermissionsMember({
+                    ...permissionsMember,
+                    role: e.target.value,
+                  })
+                }
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  background: "var(--input-bg)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "6px",
+                  color: "var(--text-white)",
+                  marginBottom: "15px",
+                }}
+              >
+                <option value="team_member">Team Member</option>
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "20px" }}>
+              <h3 style={{ color: "var(--text-white)", marginBottom: "15px" }}>
+                Module Permissions
+              </h3>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: "15px",
+                }}
+              >
+                {Object.entries({
+                  dashboard: "Dashboard",
+                  users: "User Management",
+                  stories: "User Stories",
+                  dailyUpdates: "Daily Updates",
+                  consultations: "Consultations",
+                  chats: "Chat Management",
+                  teams: "Team Management",
+                  videos: "Video Content",
+                  dietPlans: "Diet Plans",
+                  products: "Product Management",
+                  orders: "Order Management",
+                  payments: "Payment Management",
+                  notifications: "Notifications",
+                }).map(([key, label]) => (
+                  <div
+                    key={key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px",
+                      background: "var(--background-dark)",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border-color)",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      id={`permission-${key}`}
+                      checked={permissionsMember.permissions?.[key] || false}
+                      onChange={(e) =>
+                        setPermissionsMember({
+                          ...permissionsMember,
+                          permissions: {
+                            ...permissionsMember.permissions,
+                            [key]: e.target.checked,
+                          },
+                        })
+                      }
+                      style={{ accentColor: "var(--primary-gold)" }}
+                    />
+                    <label
+                      htmlFor={`permission-${key}`}
+                      style={{
+                        color: "var(--text-white)",
+                        fontSize: "0.9rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setShowPermissionsModal(false);
+                  setPermissionsMember(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePermissions}
+                className="btn btn-primary"
+              >
+                Save Permissions
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+};
+
+// Add permission handling functions
+const handlePermissions = (member) => {
+  setPermissionsMember({
+    ...member,
+    permissions: member.permissions || {},
+    role: member.role || "team_member",
+  });
+  setShowPermissionsModal(true);
+};
+
+const handleSavePermissions = async () => {
+  try {
+    await axios.put(`${API_BASE}/teams/permissions/${permissionsMember._id}`, {
+      permissions: permissionsMember.permissions,
+      role: permissionsMember.role,
+    });
+
+    // Update local state
+    setTeamMembers(
+      teamMembers.map((member) =>
+        member._id === permissionsMember._id
+          ? {
+              ...member,
+              permissions: permissionsMember.permissions,
+              role: permissionsMember.role,
+            }
+          : member,
+      ),
+    );
+
+    setShowPermissionsModal(false);
+    setPermissionsMember(null);
+    alert("Permissions updated successfully!");
+  } catch (error) {
+    console.error("Error updating permissions:", error);
+    alert("Failed to update permissions. Please try again.");
+  }
 };
 
 export default Team;

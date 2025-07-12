@@ -40,6 +40,9 @@ const Dashboard = () => {
   });
   const [paymentData, setPaymentData] = useState(null);
   const [userScoreData, setUserScoreData] = useState(null);
+  const [recentChats, setRecentChats] = useState([]);
+  const [recentConsultations, setRecentConsultations] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -242,6 +242,48 @@ const Team = () => {
   );
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
 
+  // Permission handling functions
+  const handlePermissions = (member) => {
+    setPermissionsMember({
+      ...member,
+      permissions: member.permissions || {},
+      role: member.role || "team_member",
+    });
+    setShowPermissionsModal(true);
+  };
+
+  const handleSavePermissions = async () => {
+    try {
+      await axios.put(
+        `${API_BASE}/teams/permissions/${permissionsMember._id}`,
+        {
+          permissions: permissionsMember.permissions,
+          role: permissionsMember.role,
+        },
+      );
+
+      // Update local state
+      setTeamMembers(
+        teamMembers.map((member) =>
+          member._id === permissionsMember._id
+            ? {
+                ...member,
+                permissions: permissionsMember.permissions,
+                role: permissionsMember.role,
+              }
+            : member,
+        ),
+      );
+
+      setShowPermissionsModal(false);
+      setPermissionsMember(null);
+      alert("Permissions updated successfully!");
+    } catch (error) {
+      console.error("Error updating permissions:", error);
+      alert("Failed to update permissions. Please try again.");
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading team members...</div>;
   }

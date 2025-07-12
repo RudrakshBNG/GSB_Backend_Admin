@@ -172,17 +172,36 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
       console.log("===============================");
 
-      const response = await axios.post(
-        `${API_BASE}/chat/${chatId}/reply`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            // Add Authorization header if needed
-            // Authorization: `Bearer ${user?.token}`,
+      let response;
+
+      if (selectedFile) {
+        // Use FormData for file uploads
+        response = await axios.post(
+          `${API_BASE}/chat/${chatId}/reply`,
+          formData,
+          {
+            headers: {
+              // Don't set Content-Type manually for FormData - let axios handle it
+              // Authorization: `Bearer ${user?.token}`,
+            },
           },
-        },
-      );
+        );
+      } else {
+        // Use regular JSON for text-only messages
+        response = await axios.post(
+          `${API_BASE}/chat/${chatId}/reply`,
+          {
+            text: newMessage.trim(),
+            agentId: (currentUser || user)?._id || "admin",
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              // Authorization: `Bearer ${user?.token}`,
+            },
+          },
+        );
+      }
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

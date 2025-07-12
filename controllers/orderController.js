@@ -65,16 +65,36 @@ exports.getAllOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
+    const { status, trackingNumber, notes } = req.body;
 
-    const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
+    const updateData = { status };
+    if (trackingNumber) updateData.trackingNumber = trackingNumber;
+
+    // Add to status history
+    const statusHistoryEntry = {
+      status,
+      timestamp: new Date(),
+      notes: notes || "",
+    };
+
     const order = await Order.findByIdAndUpdate(
       orderId,
-      { status },
+      {
+        ...updateData,
+        $push: { statusHistory: statusHistoryEntry },
+      },
       { new: true },
     ).populate("userId", "fullName email phoneNumber");
 

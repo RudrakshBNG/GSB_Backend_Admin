@@ -76,23 +76,23 @@ const Chats = () => {
         setSocketConnected(true);
       });
 
-      socket.on("disconnect", (reason) => {
+      socketClient.on("disconnect", (reason) => {
         console.log("Socket.IO disconnected:", reason);
         setSocketConnected(false);
       });
 
-      socket.on("connect_error", (err) => {
+      socketClient.on("connect_error", (err) => {
         console.error("Socket.IO connection error:", err.message, err);
         setSocketConnected(false);
         // Silently handle connection errors - no alerts
       });
 
-      socket.on("newChat", (newChat) => {
+      socketClient.on("newChat", (newChat) => {
         console.log("New chat received:", newChat);
         setChats((prevChats) => [newChat, ...prevChats]);
       });
 
-      socket.on("chatAssigned", ({ chatId, memberId }) => {
+      socketClient.on("chatAssigned", ({ chatId, memberId }) => {
         console.log("Chat assigned:", { chatId, memberId, teamMembers });
         setChats((prevChats) =>
           prevChats.map((chat) =>
@@ -109,7 +109,7 @@ const Chats = () => {
         );
       });
 
-      socket.on("chatResolved", ({ chatId }) => {
+      socketClient.on("chatResolved", ({ chatId }) => {
         console.log("Chat resolved:", chatId);
         setChats((prevChats) =>
           prevChats.map((chat) =>
@@ -118,7 +118,7 @@ const Chats = () => {
         );
       });
 
-      socket.on("error", ({ message }) => {
+      socketClient.on("error", ({ message }) => {
         console.error("Socket.IO error:", message);
         // Removed alert - log error but don't interrupt user experience
       });

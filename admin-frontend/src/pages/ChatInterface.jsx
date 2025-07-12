@@ -190,8 +190,10 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         `${API_BASE}/chat/${chatId}/reply`,
         formData,
         {
-          // Don't set any Content-Type - let axios handle FormData automatically
-          // This ensures proper multipart/form-data with boundary
+          headers: {
+            // Explicitly set Content-Type to undefined to force axios to set multipart/form-data
+            "Content-Type": undefined,
+          },
         },
       );
 

@@ -420,12 +420,25 @@ const Team = () => {
                     <button
                       className="action-btn btn-edit"
                       onClick={() => handleEdit(member)}
+                      title="Edit Member"
                     >
                       <Edit size={14} />
                     </button>
                     <button
+                      className="action-btn btn-primary"
+                      onClick={() => handlePermissions(member)}
+                      title="Manage Permissions"
+                      style={{
+                        background: "var(--primary-gold)",
+                        borderColor: "var(--primary-gold)",
+                      }}
+                    >
+                      <Shield size={14} />
+                    </button>
+                    <button
                       className="action-btn btn-delete"
                       onClick={() => handleDelete(member._id)}
+                      title="Delete Member"
                     >
                       <Trash2 size={14} />
                     </button>

@@ -172,36 +172,15 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
       console.log("===============================");
 
-      let response;
-
-      if (selectedFile) {
-        // Use FormData for file uploads
-        response = await axios.post(
-          `${API_BASE}/chat/${chatId}/reply`,
-          formData,
-          {
-            headers: {
-              // Don't set Content-Type manually for FormData - let axios handle it
-              // Authorization: `Bearer ${user?.token}`,
-            },
-          },
-        );
-      } else {
-        // Use regular JSON for text-only messages
-        response = await axios.post(
-          `${API_BASE}/chat/${chatId}/reply`,
-          {
-            text: newMessage.trim(),
-            agentId: (currentUser || user)?._id || "admin",
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              // Authorization: `Bearer ${user?.token}`,
-            },
-          },
-        );
-      }
+      // Always use FormData since backend always uses upload middleware
+      const response = await axios.post(
+        `${API_BASE}/chat/${chatId}/reply`,
+        formData,
+        {
+          // Don't set any Content-Type - let axios handle FormData automatically
+          // This ensures proper multipart/form-data with boundary
+        },
+      );
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

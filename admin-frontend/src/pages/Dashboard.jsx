@@ -52,7 +52,12 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      await Promise.all([loadUserStats(), loadPaymentStats(), loadChartData()]);
+      await Promise.all([
+        loadUserStats(),
+        loadPaymentStats(),
+        loadChartData(),
+        loadRecentData(),
+      ]);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {

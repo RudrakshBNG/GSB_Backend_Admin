@@ -149,9 +149,16 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       }
 
       // Debug: Log FormData contents
+      console.log("=== SENDING MESSAGE DEBUG ===");
+      console.log("Chat ID:", chatId);
+      console.log("New message:", newMessage);
+      console.log("Selected file:", selectedFile);
+      console.log("Current user:", currentUser || user);
       for (let [key, value] of formData.entries()) {
         console.log(`FormData: ${key}=${value}`);
       }
+      console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
+      console.log("===============================");
 
       const response = await axios.post(
         `${API_BASE}/chat/${chatId}/reply`,

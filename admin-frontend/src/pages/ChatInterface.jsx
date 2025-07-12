@@ -156,42 +156,10 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         return;
       }
 
-      const formData = new FormData();
-
-      // Always append text field, even if empty (backend expects it)
-      formData.append("text", newMessage.trim() || "");
-
-      // Always append agentId
-      formData.append("agentId", (currentUser || user)?._id || "admin");
-
-      // Append file with correct field name based on file type
-      if (selectedFile) {
-        let fieldName = "image"; // default
-
-        if (selectedFile.type.startsWith("video/")) {
-          fieldName = "video";
-        } else if (selectedFile.type === "application/pdf") {
-          fieldName = "pdfFile";
-        } else if (selectedFile.type.startsWith("image/")) {
-          fieldName = "image";
-        }
-
-        console.log(
-          `Appending file as field: ${fieldName}, type: ${selectedFile.type}`,
-        );
-        formData.append(fieldName, selectedFile);
-      }
-
-      // Debug: Log FormData contents
-      console.log("=== SENDING MESSAGE DEBUG ===");
+      console.log("=== SENDING TEXT MESSAGE ===");
       console.log("Chat ID:", chatId);
-      console.log("New message:", newMessage);
-      console.log("Selected file:", selectedFile);
-      console.log("Current user:", currentUser || user);
-      for (let [key, value] of formData.entries()) {
-        console.log(`FormData: ${key}=${value}`);
-      }
-      console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
+      console.log("Message:", newMessage.trim());
+      console.log("Agent ID:", (currentUser || user)?._id || "admin");
       console.log("===============================");
 
       // Use fetch API instead of axios for better FormData handling

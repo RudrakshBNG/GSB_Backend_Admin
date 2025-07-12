@@ -185,17 +185,18 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
       console.log("===============================");
 
-      // Always use FormData since backend always uses upload middleware
-      const response = await axios.post(
-        `${API_BASE}/chat/${chatId}/reply`,
-        formData,
-        {
-          headers: {
-            // Explicitly set Content-Type to undefined to force axios to set multipart/form-data
-            "Content-Type": undefined,
-          },
+      // Try clean axios configuration for FormData
+      console.log("Sending FormData with clean config...");
+
+      const response = await axios({
+        method: "post",
+        url: `${API_BASE}/chat/${chatId}/reply`,
+        data: formData,
+        headers: {
+          // Let axios handle Content-Type automatically for FormData
         },
-      );
+        timeout: 30000,
+      });
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

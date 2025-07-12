@@ -310,6 +310,169 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Recent Activity Widgets */}
+      <div className="charts-grid" style={{ marginBottom: "30px" }}>
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <MessageSquare size={20} />
+            Quick Chat
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentChats.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent chats
+              </div>
+            ) : (
+              recentChats.map((chat, index) => (
+                <div
+                  key={chat._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    {chat.customerName}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {chat.customerEmail} •{" "}
+                    {chat.chatType?.replace("_", " ").toUpperCase()}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-gray)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {new Date(chat.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Calendar size={20} />
+            Recent Consultations
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentConsultations.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent consultations
+              </div>
+            ) : (
+              recentConsultations.map((consultation, index) => (
+                <div
+                  key={consultation._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    {consultation.firstName} {consultation.lastName}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {consultation.email}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-white)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {consultation.message?.substring(0, 80)}...
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-gray)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {new Date(consultation.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Package size={20} />
+            Recent Orders
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentOrders.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent orders
+              </div>
+            ) : (
+              recentOrders.map((order, index) => (
+                <div
+                  key={order._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    Order #{order._id?.slice(-8)}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {order.contactInfo?.name} • {order.items?.length || 0} items
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-white)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    Total: {formatCurrency(order.total)}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color:
+                        order.status === "delivered" ? "#22c55e" : "#fbbf24",
+                      marginTop: "5px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {order.status || "pending"}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Charts Grid */}
       <div className="charts-grid">
         <div className="chart-card">

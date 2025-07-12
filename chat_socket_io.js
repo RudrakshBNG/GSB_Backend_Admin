@@ -41,8 +41,8 @@ module.exports = function (server) {
       allowEIO3: true, // Allow Engine.IO v3 clients
     });
 
-    // Add middleware for authentication
-    io.use((socket, next) => {
+    // Authentication middleware temporarily disabled for debugging
+    /* io.use((socket, next) => {
       try {
         console.log("🔐 Socket.IO middleware - authentication check");
         console.log("Handshake:", {
@@ -75,7 +75,7 @@ module.exports = function (server) {
         console.error("Error stack:", err.stack);
         next(new Error(`Authentication failed: ${err.message}`));
       }
-    });
+    }); */
 
     io.on("connection", (socket) => {
       try {

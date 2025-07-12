@@ -7,6 +7,7 @@ import {
   Mail,
   AlertCircle,
   Search,
+  UserPlus,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -31,7 +32,7 @@ const Consultations = () => {
     // Apply status filter (if used)
     if (statusFilter) {
       filtered = filtered.filter(
-        (consultation) => consultation.status === statusFilter
+        (consultation) => consultation.status === statusFilter,
       );
     }
 
@@ -69,7 +70,7 @@ const Consultations = () => {
       setLoading(true);
       console.log(
         "Fetching consultations from:",
-        `${API_BASE}/consultancy/all`
+        `${API_BASE}/consultancy/all`,
       ); // Debug: Log API URL
       const response = await axios.get(`${API_BASE}/consultancy/all`);
       console.log("Raw response:", response.data); // Debug: Log full response

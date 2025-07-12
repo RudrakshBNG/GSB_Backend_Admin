@@ -51,8 +51,8 @@ const Chats = () => {
     loadChats();
     loadTeamMembers();
 
-    // Initialize Socket.IO client with comprehensive debugging
-    if (API_BASE && currentUser) {
+    // Socket.IO temporarily disabled to prevent errors
+    if (false && API_BASE && currentUser) {
       console.log("🔌 Initializing Socket.IO connection...");
       console.log("API_BASE:", API_BASE);
       console.log("Current User:", currentUser);

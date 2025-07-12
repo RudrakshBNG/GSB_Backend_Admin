@@ -197,9 +197,11 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         },
       });
 
+      // Read response body only once
       const responseData = await fetchResponse.json();
 
       if (!fetchResponse.ok) {
+        // Response body already read, so use the data we have
         throw {
           response: {
             data: responseData,
@@ -209,6 +211,7 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         };
       }
 
+      // Success case - use the already read data
       const response = {
         data: responseData,
         status: fetchResponse.status,

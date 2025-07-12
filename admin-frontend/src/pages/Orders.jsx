@@ -307,6 +307,8 @@ const Orders = () => {
                       }}
                     >
                       <option value="pending">PENDING</option>
+                      <option value="confirmed">CONFIRMED</option>
+                      <option value="processing">PROCESSING</option>
                       <option value="shipped">SHIPPED</option>
                       <option value="delivered">DELIVERED</option>
                       <option value="cancelled">CANCELLED</option>

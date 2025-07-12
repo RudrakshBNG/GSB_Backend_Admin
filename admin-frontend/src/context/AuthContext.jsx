@@ -59,6 +59,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const teamMemberLogin = async (email, password) => {
+    try {
+      const response = await axios.post(`${API_BASE}/teams/login`, {
+        email,
+        password,
+      });
+
+      const { token, user: teamMember } = response.data;
+
+      // Store token
+      localStorage.setItem("adminToken", token);
+
+      // Set axios default header
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      setIsAuthenticated(true);
+      setUser({ ...teamMember, isTeamMember: true });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Team member login error:", error);
+      return {
+        success: false,
+        error: error.response?.data?.message || "Login failed",
+      };
+    }
+  };
+
   const logout = () => {
     // Remove token
     localStorage.removeItem("adminToken");
@@ -74,6 +102,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     user,
     login,
+    teamMemberLogin,
     logout,
     loading,
     API_BASE,

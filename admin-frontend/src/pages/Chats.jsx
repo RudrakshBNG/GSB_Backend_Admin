@@ -75,9 +75,15 @@ const Chats = () => {
 
       setSocket(socketClient);
 
-      // Socket.IO event listeners
+      // Socket.IO event listeners with comprehensive debugging
+      socketClient.on("connecting", () => {
+        console.log("🔄 Socket.IO connecting...");
+      });
+
       socketClient.on("connect", () => {
-        console.log("✅ Socket.IO connected successfully:", socketClient.id);
+        console.log("✅ Socket.IO connected successfully!");
+        console.log("Socket ID:", socketClient.id);
+        console.log("Socket connected:", socketClient.connected);
         setSocketConnected(true);
       });
 

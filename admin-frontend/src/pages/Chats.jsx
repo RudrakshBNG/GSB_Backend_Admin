@@ -71,9 +71,22 @@ const Chats = () => {
         },
       });
 
-      console.log("📡 Socket.IO client created:", socketClient);
+      console.log("📡 Socket.IO client created");
+      console.log("Socket connected status:", socketClient.connected);
+      console.log("Socket connecting status:", socketClient.connecting);
 
       setSocket(socketClient);
+
+      // Immediate status check
+      setTimeout(() => {
+        console.log("⏰ 2-second status check:");
+        console.log("Connected:", socketClient.connected);
+        console.log("Socket ID:", socketClient.id);
+        console.log(
+          "Socket state:",
+          socketClient.disconnected ? "disconnected" : "connected/connecting",
+        );
+      }, 2000);
 
       // Socket.IO event listeners with comprehensive debugging
       socketClient.on("connecting", () => {

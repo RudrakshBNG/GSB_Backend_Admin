@@ -139,13 +139,25 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
 
     try {
       setSending(true);
-      const formData = new FormData();
-      if (newMessage.trim()) {
-        formData.append("text", newMessage); // Only append text if not empty
+
+      // Check if we have content to send
+      if (!newMessage.trim() && !selectedFile) {
+        alert("Please enter a message or select a file to send.");
+        setSending(false);
+        return;
       }
+
+      const formData = new FormData();
+
+      // Always append text field, even if empty (backend expects it)
+      formData.append("text", newMessage.trim() || "");
+
+      // Always append agentId
       formData.append("agentId", (currentUser || user)?._id || "admin");
+
+      // Append file if present
       if (selectedFile) {
-        formData.append("media", selectedFile); // Ensure field name matches backend
+        formData.append("media", selectedFile);
       }
 
       // Debug: Log FormData contents

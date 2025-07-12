@@ -240,10 +240,10 @@ const DailyUpdates = () => {
                       onClick={() => {
                         console.log(
                           "Clicked user:",
-                          update.userId,
-                          users[update.userId],
+                          update.user?._id,
+                          update.user,
                         );
-                        handleViewUserUpdates(update.userId);
+                        handleViewUserUpdates(update.user?._id);
                       }}
                       style={{
                         cursor: "pointer",
@@ -253,7 +253,7 @@ const DailyUpdates = () => {
                       }}
                       title="Click to view all updates from this user"
                     >
-                      {users[update.userId]?.fullName || "Unknown User"}
+                      {update.user?.fullName || "Unknown User"}
                     </div>
                   </td>
                   <td>

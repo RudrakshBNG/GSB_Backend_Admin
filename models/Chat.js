@@ -6,7 +6,13 @@ const chatSchema = new mongoose.Schema({
   messages: [
     {
       sender: { type: String, enum: ["customer", "agent"], required: true },
-      text: { type: String, required: true },
+      text: { type: String, default: "" },
+      media: {
+        type: { type: String, enum: ["image", "video", "pdf", "document"] },
+        url: { type: String },
+        fileName: { type: String },
+        fileSize: { type: Number },
+      },
       timestamp: { type: Date, default: Date.now },
     },
   ],

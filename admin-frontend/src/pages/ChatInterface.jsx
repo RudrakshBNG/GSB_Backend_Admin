@@ -170,7 +170,11 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
-      console.error("Error sending message:", error.response?.data || error);
+      console.error("Full error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error response status:", error.response?.status);
+      console.error("Error message:", error.message);
 
       let errorMessage = "Please try again.";
 
@@ -182,7 +186,8 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
         } else if (error.response.data.error) {
           errorMessage = error.response.data.error;
         } else {
-          errorMessage = JSON.stringify(error.response.data);
+          // Try to extract any meaningful error info
+          errorMessage = `Server error (${error.response.status}): ${JSON.stringify(error.response.data)}`;
         }
       } else if (error.message) {
         errorMessage = error.message;

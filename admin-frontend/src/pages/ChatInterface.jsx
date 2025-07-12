@@ -174,8 +174,11 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       loadChat();
     } catch (error) {
       console.error("Full error object:", error);
-      console.error("Error response:", error.response);
-      console.error("Error response data:", error.response?.data);
+      console.error("Error response:", JSON.stringify(error.response, null, 2));
+      console.error(
+        "Error response data:",
+        JSON.stringify(error.response?.data, null, 2),
+      );
       console.error("Error response status:", error.response?.status);
       console.error("Error response statusText:", error.response?.statusText);
       console.error("Error message:", error.message);

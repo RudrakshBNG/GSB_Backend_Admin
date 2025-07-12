@@ -6,14 +6,20 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { login, teamMemberLogin } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const result = await login(email, password);
+    // First try admin login
+    let result = await login(email, password);
+
+    // If admin login fails, try team member login
+    if (!result.success) {
+      result = await teamMemberLogin(email, password);
+    }
 
     if (!result.success) {
       setError(result.error);

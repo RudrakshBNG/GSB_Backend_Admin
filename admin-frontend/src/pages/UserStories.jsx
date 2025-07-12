@@ -43,6 +43,31 @@ const UserStories = () => {
     }
   };
 
+  const toggleStoryVisibility = async (storyId, currentStatus) => {
+    try {
+      const response = await axios.put(
+        `${API_BASE}/stories/toggle/${storyId}`,
+        {
+          showInApp: !currentStatus,
+        },
+      );
+
+      // Update the story in local state
+      setStories(
+        stories.map((story) =>
+          story._id === storyId
+            ? { ...story, showInApp: !currentStatus }
+            : story,
+        ),
+      );
+
+      console.log(response.data.message);
+    } catch (error) {
+      console.error("Error toggling story visibility:", error);
+      alert("Failed to update story visibility. Please try again.");
+    }
+  };
+
   const cleanupDemoData = async () => {
     if (
       window.confirm(

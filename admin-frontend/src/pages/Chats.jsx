@@ -107,7 +107,7 @@ const Chats = () => {
 
     socket.on("error", ({ message }) => {
       console.error("Socket.IO error:", message);
-      alert(`Socket.IO Error: ${message}`);
+      // Removed alert - log error but don't interrupt user experience
     });
 
     // Cleanup on unmount

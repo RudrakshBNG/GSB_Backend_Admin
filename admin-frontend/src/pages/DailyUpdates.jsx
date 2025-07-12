@@ -105,11 +105,14 @@ const DailyUpdates = () => {
   const handleViewUserUpdates = async (userId) => {
     try {
       const user = users[userId];
-      if (!user) return;
+      if (!user) {
+        console.log("User not found for ID:", userId);
+        return;
+      }
 
       // Get all updates for this user
       const userSpecificUpdates = dailyUpdates.filter(
-        (update) => update.userId === userId,
+        (update) => update.user?._id === userId || update.userId === userId,
       );
       setSelectedUser(user);
       setUserUpdates(userSpecificUpdates);

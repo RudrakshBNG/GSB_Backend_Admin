@@ -24,6 +24,7 @@ const Consultations = () => {
 
   useEffect(() => {
     loadConsultations();
+    loadTeamMembers();
   }, []);
 
   useEffect(() => {

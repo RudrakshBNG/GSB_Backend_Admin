@@ -303,11 +303,34 @@ const Chats = () => {
             <RefreshCw size={16} />
             Refresh
           </button>
-          {!socketConnected && (
-            <span style={{ color: "var(--accent-red)", fontSize: "0.9rem" }}>
-              Real-time updates disconnected
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "0.85rem",
+            }}
+          >
+            <div
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: socketConnected
+                  ? "var(--accent-green)"
+                  : "var(--accent-red)",
+              }}
+            ></div>
+            <span
+              style={{
+                color: socketConnected
+                  ? "var(--accent-green)"
+                  : "var(--accent-red)",
+              }}
+            >
+              {socketConnected ? "Live" : "Offline"}
             </span>
-          )}
+          </div>
         </div>
       </div>
 

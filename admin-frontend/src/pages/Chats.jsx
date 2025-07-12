@@ -40,7 +40,7 @@ const Chats = () => {
   // Hardcoded admin user fallback
   const currentUser = user || { _id: "admin", email: "admin@example.com" };
 
-  // Initialize Socket.IO state
+  // Initialize Socket.IO state (temporarily disabled)
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {

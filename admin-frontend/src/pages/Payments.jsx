@@ -211,6 +211,15 @@ const Payments = () => {
                   <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
                     {payment.transactionId}
                   </td>
+                  <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
+                    {payment.easebuzzPaymentId ? (
+                      <span style={{ color: "var(--primary-gold)" }}>
+                        {payment.easebuzzPaymentId}
+                      </span>
+                    ) : (
+                      <span style={{ color: "var(--text-gray)" }}>N/A</span>
+                    )}
+                  </td>
                   <td>
                     {formatDate(payment.paymentDate || payment.createdAt)}
                   </td>

@@ -376,19 +376,15 @@ const Chats = () => {
                 width: "8px",
                 height: "8px",
                 borderRadius: "50%",
-                backgroundColor: socketConnected
-                  ? "var(--accent-green)"
-                  : "var(--accent-red)",
+                backgroundColor: "var(--accent-yellow)",
               }}
             ></div>
             <span
               style={{
-                color: socketConnected
-                  ? "var(--accent-green)"
-                  : "var(--accent-red)",
+                color: "var(--accent-yellow)",
               }}
             >
-              {socketConnected ? "Live" : "Offline"}
+              Real-time disabled
             </span>
           </div>
         </div>

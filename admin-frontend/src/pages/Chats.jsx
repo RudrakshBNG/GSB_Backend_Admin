@@ -75,19 +75,38 @@ const Chats = () => {
 
       // Socket.IO event listeners
       socketClient.on("connect", () => {
-        console.log("Socket.IO connected:", socketClient.id);
+        console.log("✅ Socket.IO connected successfully:", socketClient.id);
         setSocketConnected(true);
       });
 
       socketClient.on("disconnect", (reason) => {
-        console.log("Socket.IO disconnected:", reason);
+        console.log("🔌 Socket.IO disconnected:", reason);
         setSocketConnected(false);
       });
 
       socketClient.on("connect_error", (err) => {
-        console.error("Socket.IO connection error:", err.message, err);
+        console.error("❌ Socket.IO connection error:", err.message);
+        console.error("Error details:", err);
         setSocketConnected(false);
-        // Silently handle connection errors - no alerts
+        // Silently handle connection errors - no interrupting alerts
+      });
+
+      socketClient.on("reconnect", (attemptNumber) => {
+        console.log(
+          "🔄 Socket.IO reconnected after",
+          attemptNumber,
+          "attempts",
+        );
+        setSocketConnected(true);
+      });
+
+      socketClient.on("reconnect_error", (err) => {
+        console.error("🔄❌ Socket.IO reconnection failed:", err.message);
+      });
+
+      socketClient.on("reconnect_failed", () => {
+        console.error("🔄❌ Socket.IO reconnection failed permanently");
+        setSocketConnected(false);
       });
 
       socketClient.on("newChat", (newChat) => {

@@ -24,8 +24,41 @@ module.exports = function (server) {
     allowEIO3: true, // Allow Engine.IO v3 clients
   });
 
+  // Add middleware for authentication
+  io.use((socket, next) => {
+    try {
+      const auth = socket.handshake.auth;
+      console.log("Socket authentication:", auth);
+
+      // Allow connection even without strict auth for admin panel
+      if (auth && (auth.userId || auth.email)) {
+        socket.userId = auth.userId;
+        socket.userEmail = auth.email;
+        console.log(`Socket authenticated: ${auth.userId} (${auth.email})`);
+      } else {
+        // Allow anonymous connections for admin panel
+        socket.userId = "anonymous";
+        socket.userEmail = "anonymous@admin";
+        console.log("Anonymous socket connection allowed");
+      }
+
+      next();
+    } catch (err) {
+      console.error("Socket authentication error:", err);
+      next(err);
+    }
+  });
+
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.id}`);
+    console.log(`New client connected: ${socket.id} (User: ${socket.userId})`);
+
+    socket.on("error", (error) => {
+      console.error(`Socket error for ${socket.id}:`, error);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log(`Client disconnected: ${socket.id} (Reason: ${reason})`);
+    });
 
     socket.on("joinChat", ({ chatId, userType, userId }) => {
       if (!mongoose.Types.ObjectId.isValid(chatId)) {

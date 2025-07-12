@@ -3,7 +3,10 @@ const Chat = require("./models/Chat");
 const mongoose = require("mongoose");
 
 module.exports = function (server) {
-  const io = new Server(server, {
+  console.log("🚀 Initializing Socket.IO server...");
+
+  try {
+    const io = new Server(server, {
     cors: {
       origin: function (origin, callback) {
         const allowedOrigins = [

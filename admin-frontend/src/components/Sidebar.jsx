@@ -90,8 +90,18 @@ const Sidebar = () => {
 
   // Check if user has permission for a specific module
   const hasPermission = (permission) => {
+    // If no user is logged in, deny access
+    if (!user) {
+      return false;
+    }
+
     // Super admin or admin has access to all modules
     if (user?.role === "super-admin" || user?.role === "admin") {
+      return true;
+    }
+
+    // For hardcoded admin email (temporary fix)
+    if (user?.email === "admin@gsbpathy.com") {
       return true;
     }
 

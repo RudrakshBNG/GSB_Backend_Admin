@@ -87,13 +87,13 @@ const Orders = () => {
   const totalOrders = filteredOrders.length;
   const totalRevenue = filteredOrders.reduce(
     (sum, order) => sum + (order.total || 0),
-    0
+    0,
   );
   const pendingOrders = filteredOrders.filter(
-    (order) => order.status === "pending"
+    (order) => order.status === "pending",
   ).length;
   const completedOrders = filteredOrders.filter(
-    (order) => order.status === "delivered"
+    (order) => order.status === "delivered",
   ).length;
   const avgOrderValue = filteredOrders.length
     ? totalRevenue / filteredOrders.length
@@ -180,8 +180,11 @@ const Orders = () => {
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
           </select>
           <button className="btn btn-primary" onClick={loadOrders}>
             <RefreshCw size={16} />

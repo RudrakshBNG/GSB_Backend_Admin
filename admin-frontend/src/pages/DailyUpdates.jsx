@@ -26,7 +26,7 @@ const DailyUpdates = () => {
         const titleMatch = update.title
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase());
-        const nameMatch = (users[update.userId]?.fullName || "")
+        const nameMatch = (update.user?.fullName || "")
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
         return titleMatch || nameMatch;

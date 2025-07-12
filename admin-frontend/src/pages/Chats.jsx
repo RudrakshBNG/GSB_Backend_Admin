@@ -51,9 +51,9 @@ const Chats = () => {
     loadChats();
     loadTeamMembers();
 
-    // Initialize Socket.IO client
+    // Initialize Socket.IO client with fallback
     if (API_BASE && currentUser) {
-      console.log("Initializing Socket.IO connection to:", API_BASE);
+      console.log("🔌 Initializing Socket.IO connection to:", API_BASE);
       const socketClient = io(API_BASE, {
         path: "/socket.io",
         withCredentials: true,

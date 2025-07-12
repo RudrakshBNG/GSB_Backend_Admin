@@ -64,14 +64,23 @@ module.exports = function (server) {
   });
 
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.id} (User: ${socket.userId})`);
+    console.log(
+      `✅ New client connected: ${socket.id} (User: ${socket.userId})`,
+    );
+
+    // Send a welcome message to confirm connection
+    socket.emit("welcome", {
+      message: "Connected to GSB Admin Chat Server",
+      socketId: socket.id,
+      timestamp: new Date().toISOString(),
+    });
 
     socket.on("error", (error) => {
-      console.error(`Socket error for ${socket.id}:`, error);
+      console.error(`❌ Socket error for ${socket.id}:`, error);
     });
 
     socket.on("disconnect", (reason) => {
-      console.log(`Client disconnected: ${socket.id} (Reason: ${reason})`);
+      console.log(`🔌 Client disconnected: ${socket.id} (Reason: ${reason})`);
     });
 
     socket.on("joinChat", ({ chatId, userType, userId }) => {

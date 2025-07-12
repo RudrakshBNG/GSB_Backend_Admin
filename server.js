@@ -83,6 +83,7 @@ const easebuzzRoutes = require("./routes/easebuzzRoutes");
 const mockDataRoutes = require("./routes/mockDataRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const videoCategoryRoutes = require("./routes/videoCategoryRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);

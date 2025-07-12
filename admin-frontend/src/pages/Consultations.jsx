@@ -95,6 +95,42 @@ const Consultations = () => {
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
+  const loadTeamMembers = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/teams`);
+      setTeamMembers(response.data.data || []);
+    } catch (error) {
+      console.error("Error loading team members:", error);
+    }
+  };
+
+  const assignTeamMember = async (consultationId, teamMemberId) => {
+    try {
+      await axios.put(`${API_BASE}/consultancy/${consultationId}/assign`, {
+        teamMemberId,
+      });
+
+      // Update local state
+      setConsultations(
+        consultations.map((consultation) =>
+          consultation._id === consultationId
+            ? {
+                ...consultation,
+                assignedTo: teamMemberId
+                  ? teamMembers.find((tm) => tm._id === teamMemberId)
+                  : null,
+              }
+            : consultation,
+        ),
+      );
+
+      console.log("Team member assigned successfully");
+    } catch (error) {
+      console.error("Error assigning team member:", error);
+      alert("Failed to assign team member. Please try again.");
+    }
+  };
+
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
       case "completed":

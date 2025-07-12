@@ -147,10 +147,27 @@ const UserStories = () => {
           stories.map((story) => (
             <div key={story._id} className="story-card">
               <div className="story-header">
-                <h3>{story.title}</h3>
-                <span className="story-date">
-                  {formatDate(story.createdAt)}
-                </span>
+                <div>
+                  <h3>{story.title}</h3>
+                  <span className="story-date">
+                    {formatDate(story.createdAt)}
+                  </span>
+                </div>
+                <div className="story-toggle">
+                  <span className="toggle-label">Show in App</span>
+                  <button
+                    className={`toggle-btn ${story.showInApp ? "active" : ""}`}
+                    onClick={() =>
+                      toggleStoryVisibility(story._id, story.showInApp)
+                    }
+                  >
+                    {story.showInApp ? (
+                      <ToggleRight size={20} />
+                    ) : (
+                      <ToggleLeft size={20} />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="story-user">

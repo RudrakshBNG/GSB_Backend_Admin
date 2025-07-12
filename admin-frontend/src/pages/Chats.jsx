@@ -722,7 +722,7 @@ const Chats = () => {
                           color: "var(--text-gray)",
                         }}
                       >
-                        {member.department || "No Department"} •{" "}
+                        {member.department || "No Department"} ���{" "}
                         {member.assignedChats?.length || 0} chats
                       </div>
                     </div>

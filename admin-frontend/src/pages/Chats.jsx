@@ -40,21 +40,8 @@ const Chats = () => {
   // Hardcoded admin user fallback
   const currentUser = user || { _id: "admin", email: "admin@example.com" };
 
-  // Initialize Socket.IO with better error handling
-  const socket = io(API_BASE, {
-    path: "/socket.io",
-    withCredentials: true,
-    transports: ["polling", "websocket"],
-    reconnection: true,
-    reconnectionAttempts: 3,
-    reconnectionDelay: 2000,
-    timeout: 10000,
-    forceNew: false,
-    auth: {
-      userId: currentUser._id,
-      email: currentUser.email,
-    },
-  });
+    // Initialize Socket.IO state
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     console.log("API_BASE:", API_BASE);
@@ -64,11 +51,30 @@ const Chats = () => {
     loadChats();
     loadTeamMembers();
 
-    // Socket.IO event listeners
-    socket.on("connect", () => {
-      console.log("Socket.IO connected:", socket.id);
-      setSocketConnected(true);
-    });
+    // Initialize Socket.IO client
+    if (API_BASE && currentUser) {
+      const socketClient = io(API_BASE, {
+        path: "/socket.io",
+        withCredentials: true,
+        transports: ["polling", "websocket"],
+        reconnection: true,
+        reconnectionAttempts: 3,
+        reconnectionDelay: 2000,
+        timeout: 10000,
+        forceNew: false,
+        auth: {
+          userId: currentUser._id,
+          email: currentUser.email,
+        },
+      });
+
+      setSocket(socketClient);
+
+      // Socket.IO event listeners
+      socketClient.on("connect", () => {
+        console.log("Socket.IO connected:", socketClient.id);
+        setSocketConnected(true);
+      });
 
     socket.on("disconnect", (reason) => {
       console.log("Socket.IO disconnected:", reason);

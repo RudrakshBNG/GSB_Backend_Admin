@@ -120,6 +120,7 @@ const Chats = () => {
     // Cleanup on unmount
     return () => {
       socket.off("connect");
+      socket.off("disconnect");
       socket.off("connect_error");
       socket.off("newChat");
       socket.off("chatAssigned");

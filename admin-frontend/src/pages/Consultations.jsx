@@ -107,7 +107,7 @@ const Consultations = () => {
   const assignTeamMember = async (consultationId, teamMemberId) => {
     try {
       await axios.put(`${API_BASE}/consultancy/${consultationId}/assign`, {
-        teamMemberId,
+        assignedTo: teamMemberId || null,
       });
 
       // Update local state

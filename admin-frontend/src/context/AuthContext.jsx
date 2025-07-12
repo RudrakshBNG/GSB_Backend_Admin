@@ -111,7 +111,11 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       setIsAuthenticated(true);
-      setUser({ ...teamMember, isTeamMember: true });
+      setUser({
+        ...teamMember,
+        role: "team-member",
+        isTeamMember: true,
+      });
 
       return { success: true };
     } catch (error) {

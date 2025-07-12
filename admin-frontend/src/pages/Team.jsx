@@ -613,28 +613,44 @@ const Team = () => {
                 </select>
               </div>
 
-              {!editingMember && (
-                <div
+              <div style={{ marginBottom: "15px" }}>
+                <label
                   style={{
-                    background: "var(--background-light)",
-                    padding: "15px",
-                    borderRadius: "8px",
-                    marginBottom: "15px",
+                    color: "var(--text-white)",
+                    marginBottom: "8px",
+                    display: "block",
                   }}
                 >
-                  <p
-                    style={{
-                      color: "var(--text-gray)",
-                      fontSize: "0.9rem",
-                      margin: 0,
-                    }}
-                  >
-                    <strong>Default Password:</strong> gsbpathy123
-                    <br />
-                    Team member can change this after first login.
-                  </p>
-                </div>
-              )}
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter password for team member"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    background: "var(--input-bg)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "6px",
+                    color: "var(--text-white)",
+                    fontSize: "14px",
+                  }}
+                  required
+                />
+                <p
+                  style={{
+                    color: "var(--text-gray)",
+                    fontSize: "0.8rem",
+                    margin: "5px 0 0 0",
+                  }}
+                >
+                  Team member will use this password to login
+                </p>
+              </div>
 
               <div
                 style={{

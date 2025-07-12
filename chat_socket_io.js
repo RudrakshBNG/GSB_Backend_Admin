@@ -19,6 +19,9 @@ module.exports = function (server) {
     },
     maxHttpBufferSize: 1e8, // 100MB max message size for media
     transports: ["polling", "websocket"],
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    allowEIO3: true, // Allow Engine.IO v3 clients
   });
 
   io.on("connection", (socket) => {

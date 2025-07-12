@@ -185,18 +185,34 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("API URL:", `${API_BASE}/chat/${chatId}/reply`);
       console.log("===============================");
 
-      // Try clean axios configuration for FormData
-      console.log("Sending FormData with clean config...");
+      // Use fetch API instead of axios for better FormData handling
+      console.log("Sending FormData with fetch API...");
 
-      const response = await axios({
-        method: "post",
-        url: `${API_BASE}/chat/${chatId}/reply`,
-        data: formData,
+      const fetchResponse = await fetch(`${API_BASE}/chat/${chatId}/reply`, {
+        method: "POST",
+        body: formData,
         headers: {
-          // Let axios handle Content-Type automatically for FormData
+          // Don't set Content-Type - let browser handle it for FormData
+          Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
         },
-        timeout: 30000,
       });
+
+      const responseData = await fetchResponse.json();
+
+      if (!fetchResponse.ok) {
+        throw {
+          response: {
+            data: responseData,
+            status: fetchResponse.status,
+            statusText: fetchResponse.statusText,
+          },
+        };
+      }
+
+      const response = {
+        data: responseData,
+        status: fetchResponse.status,
+      };
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

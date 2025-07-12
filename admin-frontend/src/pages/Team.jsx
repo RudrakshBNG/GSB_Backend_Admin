@@ -21,8 +21,10 @@ const Team = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const [editingDepartment, setEditingDepartment] = useState(null);
+  const [permissionsMember, setPermissionsMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [membersPerPage] = useState(8);

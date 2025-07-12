@@ -23,13 +23,49 @@ export const AuthProvider = ({ children }) => {
     // Check if user is already logged in
     const token = localStorage.getItem("adminToken");
     if (token) {
-      // Set axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-      setUser({ email: "admin@gsbpathy.com" }); // You can fetch user details from token
+      try {
+        // Decode token to get user data
+        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+
+        // Set axios default header
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        setIsAuthenticated(true);
+
+        // Set user based on token data
+        if (
+          tokenPayload.role === "super-admin" ||
+          tokenPayload.role === "admin"
+        ) {
+          setUser({
+            email: tokenPayload.email,
+            role: tokenPayload.role,
+          });
+        } else {
+          // For team members, we might need to fetch full user data including permissions
+          fetchTeamMemberData(tokenPayload);
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        // Invalid token, remove it
+        localStorage.removeItem("adminToken");
+      }
     }
     setLoading(false);
   }, []);
+
+  const fetchTeamMemberData = async (tokenPayload) => {
+    try {
+      const response = await axios.get(`${API_BASE}/teams/me`);
+      setUser({ ...response.data.data, role: "team-member" });
+    } catch (error) {
+      console.error("Error fetching team member data:", error);
+      setUser({
+        email: tokenPayload.email,
+        role: "team-member",
+        permissions: {},
+      });
+    }
+  };
 
   const login = async (email, password) => {
     try {

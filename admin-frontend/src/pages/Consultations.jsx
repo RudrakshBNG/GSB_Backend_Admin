@@ -308,7 +308,30 @@ const Consultations = () => {
                         : consultation.message || "N/A"}
                     </div>
                   </td>
-                  <td>{consultation.assignedTo?.fullName || "Unassigned"}</td>
+                  <td>
+                    <select
+                      value={consultation.assignedTo?._id || ""}
+                      onChange={(e) =>
+                        assignTeamMember(consultation._id, e.target.value)
+                      }
+                      style={{
+                        padding: "6px 8px",
+                        background: "var(--input-bg)",
+                        border: "1px solid var(--border-color)",
+                        borderRadius: "4px",
+                        color: "var(--text-white)",
+                        fontSize: "0.85rem",
+                        minWidth: "120px",
+                      }}
+                    >
+                      <option value="">Unassigned</option>
+                      {teamMembers.map((member) => (
+                        <option key={member._id} value={member._id}>
+                          {member.fullName}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   {/* <td>
                     <span
                       className={`flag-badge ${getStatusClass(consultation.status)}`}

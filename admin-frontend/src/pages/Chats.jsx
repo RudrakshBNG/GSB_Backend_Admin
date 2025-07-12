@@ -53,18 +53,21 @@ const Chats = () => {
 
     // Initialize Socket.IO client
     if (API_BASE && currentUser) {
+      console.log("Initializing Socket.IO connection to:", API_BASE);
       const socketClient = io(API_BASE, {
         path: "/socket.io",
         withCredentials: true,
         transports: ["polling", "websocket"],
         reconnection: true,
-        reconnectionAttempts: 3,
-        reconnectionDelay: 2000,
-        timeout: 10000,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
         forceNew: false,
+        autoConnect: true,
         auth: {
-          userId: currentUser._id,
-          email: currentUser.email,
+          userId: currentUser._id || "admin",
+          email: currentUser.email || "admin@example.com",
         },
       });
 

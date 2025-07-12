@@ -79,6 +79,10 @@ const Chats = () => {
         setSocketConnected(true);
       });
 
+      socketClient.on("welcome", (data) => {
+        console.log("🎉 Welcome message received:", data);
+      });
+
       socketClient.on("disconnect", (reason) => {
         console.log("🔌 Socket.IO disconnected:", reason);
         setSocketConnected(false);

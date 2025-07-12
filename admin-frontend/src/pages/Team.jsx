@@ -7,6 +7,8 @@ import {
   Trash2,
   Search,
   MessageSquare,
+  Shield,
+  Settings,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -51,8 +53,8 @@ const Team = () => {
           member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           member.department.some((dept) =>
-            dept.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+            dept.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
@@ -122,7 +124,7 @@ const Team = () => {
       if (editingMember) {
         await axios.put(
           `${API_BASE}/teams/update/${editingMember._id}`,
-          payload
+          payload,
         );
       } else {
         await axios.post(`${API_BASE}/teams/add-member`, payload);
@@ -141,7 +143,7 @@ const Team = () => {
       console.error("Error saving team member:", error);
       alert(
         error.response?.data?.message ||
-          "Error saving team member. Please try again."
+          "Error saving team member. Please try again.",
       );
     }
   };
@@ -168,7 +170,7 @@ const Team = () => {
         console.error("Error deleting team member:", error);
         alert(
           error.response?.data?.message ||
-            "Error deleting team member. Please try again."
+            "Error deleting team member. Please try again.",
         );
       }
     }
@@ -186,7 +188,7 @@ const Team = () => {
       if (editingDepartment) {
         await axios.put(
           `${API_BASE}/dept/update/${editingDepartment.departmentId}`,
-          payload
+          payload,
         );
       } else {
         await axios.post(`${API_BASE}/dept/add`, payload);
@@ -200,7 +202,7 @@ const Team = () => {
       console.error("Error saving department:", error);
       alert(
         error.response?.data?.message ||
-          "Error saving department. Please try again."
+          "Error saving department. Please try again.",
       );
     }
   };
@@ -214,7 +216,7 @@ const Team = () => {
         console.error("Error deleting department:", error);
         alert(
           error.response?.data?.message ||
-            "Error deleting department. Please try again."
+            "Error deleting department. Please try again.",
         );
       }
     }
@@ -234,7 +236,7 @@ const Team = () => {
   const indexOfFirstMember = indexOfLastMember - membersPerPage;
   const currentMembers = filteredMembers.slice(
     indexOfFirstMember,
-    indexOfLastMember
+    indexOfLastMember,
   );
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
 
@@ -338,7 +340,7 @@ const Team = () => {
             <h3>
               {teamMembers.reduce(
                 (total, m) => total + (m.assignedChats?.length || 0),
-                0
+                0,
               )}
             </h3>
             <p>Total Assigned Chats</p>
@@ -352,7 +354,7 @@ const Team = () => {
                   ...new Set(
                     teamMembers
                       .flatMap((m) => m.department.map((d) => d.name))
-                      .filter((d) => d)
+                      .filter((d) => d),
                   ),
                 ].length
               }

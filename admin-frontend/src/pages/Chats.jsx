@@ -70,10 +70,15 @@ const Chats = () => {
       setSocketConnected(true);
     });
 
+    socket.on("disconnect", (reason) => {
+      console.log("Socket.IO disconnected:", reason);
+      setSocketConnected(false);
+    });
+
     socket.on("connect_error", (err) => {
       console.error("Socket.IO connection error:", err.message, err);
       setSocketConnected(false);
-      // Removed alert - silently handle connection errors
+      // Silently handle connection errors - no alerts
     });
 
     socket.on("newChat", (newChat) => {

@@ -7,6 +7,8 @@ const {
   getAssignedChats,
   updateTeamMember,
   deleteTeamMember,
+  updatePermissions,
+  teamMemberLogin,
 } = require("../controllers/teamController");
 
 // Standard REST routes

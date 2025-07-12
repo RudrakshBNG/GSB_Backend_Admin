@@ -151,6 +151,9 @@ const Chats = () => {
           socketClient.off("connect");
           socketClient.off("disconnect");
           socketClient.off("connect_error");
+          socketClient.off("reconnect");
+          socketClient.off("reconnect_error");
+          socketClient.off("reconnect_failed");
           socketClient.off("newChat");
           socketClient.off("chatAssigned");
           socketClient.off("chatResolved");

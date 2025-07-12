@@ -71,7 +71,7 @@ const Chats = () => {
     socket.on("connect_error", (err) => {
       console.error("Socket.IO connection error:", err.message, err);
       setSocketConnected(false);
-      alert("Real-time updates disconnected. Falling back to polling.");
+      // Removed alert - silently handle connection errors
     });
 
     socket.on("newChat", (newChat) => {
@@ -91,8 +91,8 @@ const Chats = () => {
                   fullName: "Unknown",
                 },
               }
-            : chat
-        )
+            : chat,
+        ),
       );
     });
 
@@ -100,8 +100,8 @@ const Chats = () => {
       console.log("Chat resolved:", chatId);
       setChats((prevChats) =>
         prevChats.map((chat) =>
-          chat._id === chatId ? { ...chat, status: "resolved" } : chat
-        )
+          chat._id === chatId ? { ...chat, status: "resolved" } : chat,
+        ),
       );
     });
 
@@ -199,7 +199,7 @@ const Chats = () => {
               ? `Bearer ${currentUser.token}`
               : undefined,
           },
-        }
+        },
       );
       setShowAssignModal(false);
       setSelectedChat(null);
@@ -221,7 +221,7 @@ const Chats = () => {
                 ? `Bearer ${currentUser.token}`
                 : undefined,
             },
-          }
+          },
         );
       } catch (error) {
         console.error("Error marking chat as resolved:", error);
@@ -448,9 +448,9 @@ const Chats = () => {
                     "customer"
                       ? "👤 Customer"
                       : chat.messages[chat.messages.length - 1].sender ===
-                        "admin"
-                      ? "👑 Admin"
-                      : "👨‍💼 Agent"}
+                          "admin"
+                        ? "👑 Admin"
+                        : "👨‍💼 Agent"}
                   </span>
                 </div>
               ) : (

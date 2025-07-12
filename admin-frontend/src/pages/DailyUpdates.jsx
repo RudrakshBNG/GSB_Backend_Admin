@@ -246,7 +246,14 @@ const DailyUpdates = () => {
                   </td>
                   <td>
                     <div
-                      onClick={() => handleViewUserUpdates(update.userId)}
+                      onClick={() => {
+                        console.log(
+                          "Clicked user:",
+                          update.userId,
+                          users[update.userId],
+                        );
+                        handleViewUserUpdates(update.userId);
+                      }}
                       style={{
                         cursor: "pointer",
                         color: "var(--primary-gold)",

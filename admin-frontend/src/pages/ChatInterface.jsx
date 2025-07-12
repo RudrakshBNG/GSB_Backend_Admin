@@ -162,68 +162,20 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("Agent ID:", (currentUser || user)?._id || "admin");
       console.log("===============================");
 
-      // Use fetch API instead of axios for better FormData handling
-      console.log("Sending FormData with fetch API...");
-
-      const fetchResponse = await fetch(`${API_BASE}/chat/${chatId}/reply`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          // Don't set Content-Type - let browser handle it for FormData
-          Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
+      // Use simple JSON request since we're only sending text
+      const response = await axios.post(
+        `${API_BASE}/chat/${chatId}/reply`,
+        {
+          text: newMessage.trim(),
+          agentId: (currentUser || user)?._id || "admin",
         },
-      });
-
-      console.log("Fetch response received:", {
-        status: fetchResponse.status,
-        ok: fetchResponse.ok,
-        bodyUsed: fetchResponse.bodyUsed,
-      });
-
-      let responseData;
-      try {
-        // Safely read response body
-        if (!fetchResponse.bodyUsed) {
-          responseData = await fetchResponse.json();
-        } else {
-          console.warn("Response body already used");
-          responseData = { message: "Response body already read" };
-        }
-      } catch (jsonError) {
-        console.error("JSON parsing error:", jsonError);
-        // Try to read as text if JSON fails
-        try {
-          if (!fetchResponse.bodyUsed) {
-            const textData = await fetchResponse.text();
-            responseData = { message: textData || fetchResponse.statusText };
-          } else {
-            responseData = {
-              message: fetchResponse.statusText || "Unknown error",
-            };
-          }
-        } catch (textError) {
-          console.error("Text reading error:", textError);
-          responseData = {
-            message: fetchResponse.statusText || "Unknown error",
-          };
-        }
-      }
-
-      if (!fetchResponse.ok) {
-        throw {
-          response: {
-            data: responseData,
-            status: fetchResponse.status,
-            statusText: fetchResponse.statusText,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
           },
-        };
-      }
-
-      // Success case
-      const response = {
-        data: responseData,
-        status: fetchResponse.status,
-      };
+        },
+      );
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");

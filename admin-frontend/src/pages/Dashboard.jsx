@@ -148,6 +148,28 @@ const Dashboard = () => {
     }
   };
 
+  const loadRecentData = async () => {
+    try {
+      // Load recent chats
+      const chatsResponse = await axios.get(`${API_BASE}/chat?limit=5`);
+      setRecentChats(chatsResponse.data.chats?.slice(0, 5) || []);
+
+      // Load recent consultations
+      const consultationsResponse = await axios.get(
+        `${API_BASE}/consultancy/all?limit=5`,
+      );
+      setRecentConsultations(
+        consultationsResponse.data.data?.slice(0, 5) || [],
+      );
+
+      // Load recent orders
+      const ordersResponse = await axios.get(`${API_BASE}/orders?limit=5`);
+      setRecentOrders(ordersResponse.data.orders?.slice(0, 5) || []);
+    } catch (error) {
+      console.error("Error loading recent data:", error);
+    }
+  };
+
   const loadChartData = async () => {
     // Additional chart data loading can go here
   };

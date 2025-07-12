@@ -16,6 +16,7 @@ const Consultations = () => {
   const { API_BASE } = useAuth();
   const [consultations, setConsultations] = useState([]);
   const [filteredConsultations, setFilteredConsultations] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [assignFilter, setAssignFilter] = useState("all");

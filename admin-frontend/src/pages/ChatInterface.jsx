@@ -22,16 +22,17 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    // Load initial chat data regardless of socket status
+    loadChat();
+
     if (chatId && socket) {
+      console.log("📨 Joining chat room:", chatId);
       // Join the chat room
       socket.emit("joinChat", {
         chatId,
         userType: "agent",
         userId: "admin", // Replace with actual agent ID from auth context
       });
-
-      // Load initial chat data
-      loadChat();
 
       // Socket.IO event listeners
       socket.on("newMessage", ({ chatId: incomingChatId, message }) => {
@@ -161,7 +162,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
             // Add Authorization header if needed
             // Authorization: `Bearer ${user?.token}`,
           },
-        }
+        },
       );
 
       console.log("Message sent successfully:", response.data);
@@ -173,7 +174,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
       alert(
         `Error sending message: ${
           error.response?.data?.message || "Please try again."
-        }`
+        }`,
       );
     } finally {
       setSending(false);
@@ -205,7 +206,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
       ];
       if (!allowedTypes.includes(file.type)) {
         alert(
-          "Only JPEG, PNG, WebP, MP4, MPEG, QuickTime, or PDF files are allowed."
+          "Only JPEG, PNG, WebP, MP4, MPEG, QuickTime, or PDF files are allowed.",
         );
         return;
       }

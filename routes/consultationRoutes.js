@@ -14,6 +14,7 @@ router.post("/submit/user", submitConsultancyRequestByUserId); // For app (authe
 router.get("/all", getAllConsultancyRequests); // For admin panel
 router.get("/:id", getConsultancyRequestById); // For admin panel
 router.patch("/:id", updateConsultancyRequest); // For admin panel
+router.put("/:id/assign", updateConsultancyRequest); // For assignment (alias for update)
 
 module.exports = router;
 // // routes/consultancyRoutes.js

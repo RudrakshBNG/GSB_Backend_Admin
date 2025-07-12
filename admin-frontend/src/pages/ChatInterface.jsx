@@ -10,8 +10,8 @@ import {
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const ChatInterface = ({ chatId, onBack, socket }) => {
-  const { API_BASE } = useAuth();
+const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
+  const { API_BASE, user } = useAuth();
   const [chat, setChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -143,7 +143,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
       if (newMessage.trim()) {
         formData.append("text", newMessage); // Only append text if not empty
       }
-      formData.append("agentId", user?._id || "admin");
+      formData.append("agentId", (currentUser || user)?._id || "admin");
       if (selectedFile) {
         formData.append("media", selectedFile); // Ensure field name matches backend
       }
@@ -226,11 +226,15 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
   };
 
   const handleTyping = () => {
-    socket.emit("typing", { chatId, userType: "agent", userId: "admin" });
+    if (socket) {
+      socket.emit("typing", { chatId, userType: "agent", userId: "admin" });
+    }
   };
 
   const handleStopTyping = () => {
-    socket.emit("stopTyping", { chatId, userType: "agent", userId: "admin" });
+    if (socket) {
+      socket.emit("stopTyping", { chatId, userType: "agent", userId: "admin" });
+    }
   };
 
   const formatTime = (dateString) => {

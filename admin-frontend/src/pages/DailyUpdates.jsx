@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RefreshCw, Calendar, User, Image, Search } from "lucide-react";
+import { RefreshCw, Calendar, User, Image, Search, Eye, X } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -51,7 +51,7 @@ const DailyUpdates = () => {
         axios.get(`${API_BASE}/user/${userId}`).catch((err) => {
           console.error(`Error fetching user ${userId}:`, err.message); // Debug: Log user fetch errors
           return { data: { user: { _id: userId, fullName: "Unknown User" } } };
-        })
+        }),
       );
       const userResponses = await Promise.all(userPromises);
       const userMap = userResponses.reduce((acc, res) => {
@@ -104,7 +104,7 @@ const DailyUpdates = () => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return filteredUpdates.filter(
-      (update) => new Date(update.createdAt) >= weekAgo
+      (update) => new Date(update.createdAt) >= weekAgo,
     ).length;
   };
 
@@ -256,7 +256,7 @@ const DailyUpdates = () => {
                           onError={(e) => {
                             console.error(
                               "Failed to load daily update image:",
-                              update.imageUrl
+                              update.imageUrl,
                             );
                             e.target.style.display = "none";
                             e.target.nextSibling.style.display = "flex";

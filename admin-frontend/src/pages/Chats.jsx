@@ -40,14 +40,16 @@ const Chats = () => {
   // Hardcoded admin user fallback
   const currentUser = user || { _id: "admin", email: "admin@example.com" };
 
-  // Initialize Socket.IO
+  // Initialize Socket.IO with better error handling
   const socket = io(API_BASE, {
     path: "/socket.io",
     withCredentials: true,
-    transports: ["polling"],
+    transports: ["polling", "websocket"],
     reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
+    reconnectionAttempts: 3,
+    reconnectionDelay: 2000,
+    timeout: 10000,
+    forceNew: false,
     auth: {
       userId: currentUser._id,
       email: currentUser.email,

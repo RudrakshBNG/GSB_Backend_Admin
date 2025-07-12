@@ -41,25 +41,34 @@ module.exports = function (server) {
   // Add middleware for authentication
   io.use((socket, next) => {
     try {
+      console.log("🔐 Socket.IO middleware - authentication check");
+      console.log("Handshake:", {
+        headers: socket.handshake.headers,
+        query: socket.handshake.query,
+        auth: socket.handshake.auth,
+      });
+
       const auth = socket.handshake.auth;
-      console.log("Socket authentication:", auth);
+      console.log("Socket authentication data:", auth);
 
       // Allow connection even without strict auth for admin panel
       if (auth && (auth.userId || auth.email)) {
         socket.userId = auth.userId;
         socket.userEmail = auth.email;
-        console.log(`Socket authenticated: ${auth.userId} (${auth.email})`);
+        console.log(`✅ Socket authenticated: ${auth.userId} (${auth.email})`);
       } else {
         // Allow anonymous connections for admin panel
         socket.userId = "anonymous";
         socket.userEmail = "anonymous@admin";
-        console.log("Anonymous socket connection allowed");
+        console.log("⚠️ Anonymous socket connection allowed");
       }
 
+      console.log("🔐 Authentication middleware completed successfully");
       next();
     } catch (err) {
-      console.error("Socket authentication error:", err);
-      next(err);
+      console.error("❌ Socket authentication error:", err);
+      console.error("Error stack:", err.stack);
+      next(new Error(`Authentication failed: ${err.message}`));
     }
   });
 

@@ -10,6 +10,9 @@ const DailyUpdates = () => {
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userUpdates, setUserUpdates] = useState([]);
 
   useEffect(() => {
     loadDailyUpdates();

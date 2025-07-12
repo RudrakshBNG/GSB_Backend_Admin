@@ -180,7 +180,7 @@ const Payments = () => {
           <tbody>
             {filteredPayments.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
+                <td colSpan="8" style={{ textAlign: "center" }}>
                   No payments found
                 </td>
               </tr>

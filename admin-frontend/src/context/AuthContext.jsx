@@ -24,8 +24,17 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("adminToken");
     if (token) {
       try {
-        // Decode token to get user data
-        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+        // For our base64 token format, decode it directly
+        let tokenPayload;
+
+        // Check if it's a JWT-like token (starts with base64 data)
+        if (token.includes(".")) {
+          // JWT format
+          tokenPayload = JSON.parse(atob(token.split(".")[1]));
+        } else {
+          // Our custom base64 format
+          tokenPayload = JSON.parse(atob(token));
+        }
 
         // Set axios default header
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -41,31 +50,23 @@ export const AuthProvider = ({ children }) => {
             role: tokenPayload.role,
           });
         } else {
-          // For team members, we might need to fetch full user data including permissions
-          fetchTeamMemberData(tokenPayload);
+          // For team members, use token data with default permissions
+          setUser({
+            id: tokenPayload.id,
+            email: tokenPayload.email,
+            role: "team-member",
+            permissions: {}, // Will be populated on login
+          });
         }
       } catch (error) {
         console.error("Error decoding token:", error);
         // Invalid token, remove it
         localStorage.removeItem("adminToken");
+        delete axios.defaults.headers.common["Authorization"];
       }
     }
     setLoading(false);
   }, []);
-
-  const fetchTeamMemberData = async (tokenPayload) => {
-    try {
-      const response = await axios.get(`${API_BASE}/teams/me`);
-      setUser({ ...response.data.data, role: "team-member" });
-    } catch (error) {
-      console.error("Error fetching team member data:", error);
-      setUser({
-        email: tokenPayload.email,
-        role: "team-member",
-        permissions: {},
-      });
-    }
-  };
 
   const login = async (email, password) => {
     try {

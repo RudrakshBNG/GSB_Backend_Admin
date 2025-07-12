@@ -245,7 +245,16 @@ const DailyUpdates = () => {
                     <strong>{update.title || "Untitled"}</strong>
                   </td>
                   <td>
-                    <div>
+                    <div
+                      onClick={() => handleViewUserUpdates(update.userId)}
+                      style={{
+                        cursor: "pointer",
+                        color: "var(--primary-gold)",
+                        textDecoration: "underline",
+                        fontWeight: "500",
+                      }}
+                      title="Click to view all updates from this user"
+                    >
                       {users[update.userId]?.fullName || "Unknown User"}
                     </div>
                   </td>

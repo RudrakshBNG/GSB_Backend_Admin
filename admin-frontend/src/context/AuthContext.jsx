@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Set axios defaults - proxy will handle /api requests to backend
-  const API_BASE = "http://localhost:3000/api";
+  // Use relative URLs - proxy will handle /api requests to backend
+  const API_BASE = "/api";
 
   useEffect(() => {
     // Check if user is already logged in

@@ -45,25 +45,16 @@ const DailyUpdates = () => {
       const updates = response.data.dailyUpdates || [];
       console.log("Parsed updates:", updates); // Debug: Log parsed updates
 
-      // Fetch user details for each unique userId
-      const userIds = [
-        ...new Set(updates.map((update) => update.userId).filter(Boolean)),
-      ];
-      console.log("Unique user IDs:", userIds); // Debug: Log user IDs
-      const userPromises = userIds.map((userId) =>
-        axios.get(`${API_BASE}/user/${userId}`).catch((err) => {
-          console.error(`Error fetching user ${userId}:`, err.message); // Debug: Log user fetch errors
-          return { data: { user: { _id: userId, fullName: "Unknown User" } } };
-        }),
-      );
-      const userResponses = await Promise.all(userPromises);
-      const userMap = userResponses.reduce((acc, res) => {
-        if (res.data.user) {
-          acc[res.data.user._id] = res.data.user;
+      // Create user map from populated user data (backend sends populated user objects)
+      const userMap = {};
+      updates.forEach((update) => {
+        if (update.user && update.user._id) {
+          userMap[update.user._id] = update.user;
+          // Also store by userId for backward compatibility
+          update.userId = update.user._id;
         }
-        return acc;
-      }, {});
-      console.log("User map:", userMap); // Debug: Log user map
+      });
+      console.log("User map from populated data:", userMap); // Debug: Log user map
       setUsers(userMap);
 
       // Debug: Log image URLs

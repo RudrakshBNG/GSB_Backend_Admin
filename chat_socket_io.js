@@ -5,15 +5,29 @@ const mongoose = require("mongoose");
 module.exports = function (server) {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "http://localhost:3001",
-        "http://localhost:3002",
-        "http://127.0.0.1:3001",
-        "https://apis.gsbpathy.com",
-        "https://main.d13yqss2i4o49v.amplifyapp.com",
-        "https://admin.gsbpathy.com",
-        "https://74c479b6a8d640b4b7bb7800e74a8fe9-8ef734e1b71d48d881c634dc0.fly.dev",
-      ],
+      origin: function (origin, callback) {
+        const allowedOrigins = [
+          "http://localhost:3001",
+          "http://localhost:3002",
+          "http://127.0.0.1:3001",
+          "https://apis.gsbpathy.com",
+          "https://main.d13yqss2i4o49v.amplifyapp.com",
+          "https://admin.gsbpathy.com",
+          "https://74c479b6a8d640b4b7bb7800e74a8fe9-8ef734e1b71d48d881c634dc0.fly.dev",
+        ];
+
+        console.log("Socket.IO connection origin:", origin);
+
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          console.log("Socket.IO CORS blocked origin:", origin);
+          callback(null, false);
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true,
     },

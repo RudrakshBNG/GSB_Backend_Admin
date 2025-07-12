@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Users, DollarSign, Flag, CreditCard } from "lucide-react";
+import {
+  Users,
+  DollarSign,
+  Flag,
+  CreditCard,
+  MessageSquare,
+  Calendar,
+  Package,
+} from "lucide-react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -19,7 +27,7 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
 );
 
 const Dashboard = () => {
@@ -55,7 +63,7 @@ const Dashboard = () => {
       const users = response.data.users || [];
 
       const greenFlagUsers = users.filter(
-        (user) => user.flag === "green"
+        (user) => user.flag === "green",
       ).length;
 
       setStats((prev) => ({
@@ -149,7 +157,7 @@ const Dashboard = () => {
       alert(
         `Failed to create test data: ${
           error.response?.data?.message || error.message
-        }`
+        }`,
       );
     }
   };

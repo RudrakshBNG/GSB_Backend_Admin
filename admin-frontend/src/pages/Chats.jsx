@@ -188,7 +188,7 @@ const Chats = () => {
         }
       };
     }
-  }, [API_BASE, teamMembers, currentUser]);
+  }, [API_BASE, currentUser]);
 
   useEffect(() => {
     // Filter chats based on status, type, and assignment

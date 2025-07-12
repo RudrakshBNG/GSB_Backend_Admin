@@ -965,7 +965,7 @@ const Team = () => {
     } catch (error) {
       console.error("Error updating permissions:", error);
       alert("Failed to update permissions. Please try again.");
-    }
+        }
   };
 };
 

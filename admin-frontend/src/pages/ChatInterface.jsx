@@ -171,11 +171,24 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Error sending message:", error.response?.data || error);
-      alert(
-        `Error sending message: ${
-          error.response?.data?.message || "Please try again."
-        }`,
-      );
+
+      let errorMessage = "Please try again.";
+
+      if (error.response?.data) {
+        if (typeof error.response.data === "string") {
+          errorMessage = error.response.data;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else {
+          errorMessage = JSON.stringify(error.response.data);
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(`Error sending message: ${errorMessage}`);
     } finally {
       setSending(false);
     }

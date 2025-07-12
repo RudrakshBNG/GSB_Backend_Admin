@@ -40,7 +40,7 @@ const Chats = () => {
   // Hardcoded admin user fallback
   const currentUser = user || { _id: "admin", email: "admin@example.com" };
 
-    // Initialize Socket.IO state
+  // Initialize Socket.IO state
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
@@ -76,64 +76,67 @@ const Chats = () => {
         setSocketConnected(true);
       });
 
-    socket.on("disconnect", (reason) => {
-      console.log("Socket.IO disconnected:", reason);
-      setSocketConnected(false);
-    });
+      socket.on("disconnect", (reason) => {
+        console.log("Socket.IO disconnected:", reason);
+        setSocketConnected(false);
+      });
 
-    socket.on("connect_error", (err) => {
-      console.error("Socket.IO connection error:", err.message, err);
-      setSocketConnected(false);
-      // Silently handle connection errors - no alerts
-    });
+      socket.on("connect_error", (err) => {
+        console.error("Socket.IO connection error:", err.message, err);
+        setSocketConnected(false);
+        // Silently handle connection errors - no alerts
+      });
 
-    socket.on("newChat", (newChat) => {
-      console.log("New chat received:", newChat);
-      setChats((prevChats) => [newChat, ...prevChats]);
-    });
+      socket.on("newChat", (newChat) => {
+        console.log("New chat received:", newChat);
+        setChats((prevChats) => [newChat, ...prevChats]);
+      });
 
-    socket.on("chatAssigned", ({ chatId, memberId }) => {
-      console.log("Chat assigned:", { chatId, memberId, teamMembers });
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat._id === chatId
-            ? {
-                ...chat,
-                assignedTo: teamMembers.find((m) => m._id === memberId) || {
-                  _id: memberId,
-                  fullName: "Unknown",
-                },
-              }
-            : chat,
-        ),
-      );
-    });
+      socket.on("chatAssigned", ({ chatId, memberId }) => {
+        console.log("Chat assigned:", { chatId, memberId, teamMembers });
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === chatId
+              ? {
+                  ...chat,
+                  assignedTo: teamMembers.find((m) => m._id === memberId) || {
+                    _id: memberId,
+                    fullName: "Unknown",
+                  },
+                }
+              : chat,
+          ),
+        );
+      });
 
-    socket.on("chatResolved", ({ chatId }) => {
-      console.log("Chat resolved:", chatId);
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat._id === chatId ? { ...chat, status: "resolved" } : chat,
-        ),
-      );
-    });
+      socket.on("chatResolved", ({ chatId }) => {
+        console.log("Chat resolved:", chatId);
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === chatId ? { ...chat, status: "resolved" } : chat,
+          ),
+        );
+      });
 
-    socket.on("error", ({ message }) => {
-      console.error("Socket.IO error:", message);
-      // Removed alert - log error but don't interrupt user experience
-    });
+      socket.on("error", ({ message }) => {
+        console.error("Socket.IO error:", message);
+        // Removed alert - log error but don't interrupt user experience
+      });
 
-    // Cleanup on unmount
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("connect_error");
-      socket.off("newChat");
-      socket.off("chatAssigned");
-      socket.off("chatResolved");
-      socket.off("error");
-      socket.disconnect();
-    };
+      // Cleanup on unmount
+      return () => {
+        if (socketClient) {
+          socketClient.off("connect");
+          socketClient.off("disconnect");
+          socketClient.off("connect_error");
+          socketClient.off("newChat");
+          socketClient.off("chatAssigned");
+          socketClient.off("chatResolved");
+          socketClient.off("error");
+          socketClient.disconnect();
+        }
+      };
+    }
   }, [API_BASE, teamMembers, currentUser]);
 
   useEffect(() => {

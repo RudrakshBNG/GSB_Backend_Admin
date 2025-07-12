@@ -155,9 +155,22 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       // Always append agentId
       formData.append("agentId", (currentUser || user)?._id || "admin");
 
-      // Append file if present
+      // Append file with correct field name based on file type
       if (selectedFile) {
-        formData.append("media", selectedFile);
+        let fieldName = "image"; // default
+
+        if (selectedFile.type.startsWith("video/")) {
+          fieldName = "video";
+        } else if (selectedFile.type === "application/pdf") {
+          fieldName = "pdfFile";
+        } else if (selectedFile.type.startsWith("image/")) {
+          fieldName = "image";
+        }
+
+        console.log(
+          `Appending file as field: ${fieldName}, type: ${selectedFile.type}`,
+        );
+        formData.append(fieldName, selectedFile);
       }
 
       // Debug: Log FormData contents

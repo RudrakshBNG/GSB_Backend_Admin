@@ -84,7 +84,18 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       setIsAuthenticated(true);
-      setUser({ email });
+
+      // Decode token to get role information
+      try {
+        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
+        setUser({
+          email: tokenPayload.email,
+          role: tokenPayload.role || "admin",
+        });
+      } catch (decodeError) {
+        // Fallback if token decode fails
+        setUser({ email, role: "admin" });
+      }
 
       return { success: true };
     } catch (error) {

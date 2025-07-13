@@ -2,12 +2,18 @@ const { uploadFileToS3 } = require("../services/s3Uploader");
 
 exports.uploadToS3 = async (req, res) => {
   try {
-    const { folder } = req.body;
-    const file = req.files?.file;
+    console.log("Upload request received:");
+    console.log("Body:", req.body);
+    console.log("Files:", req.files);
 
-    if (!file) {
+    const { folder } = req.body;
+    const fileArray = req.files?.file;
+
+    if (!fileArray || fileArray.length === 0) {
       return res.status(400).json({ message: "No file provided" });
     }
+
+    const file = fileArray[0]; // Get first file from array
 
     if (!folder) {
       return res.status(400).json({ message: "Folder is required" });
@@ -30,6 +36,10 @@ exports.uploadToS3 = async (req, res) => {
           "Invalid file type. Only images, videos, and PDFs are allowed.",
       });
     }
+
+    console.log(
+      `File validation passed: ${file.originalname}, ${file.mimetype}, ${file.size} bytes`,
+    );
 
     // Validate file size
     const maxSize = file.mimetype.startsWith("image")

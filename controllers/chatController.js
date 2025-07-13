@@ -27,7 +27,7 @@ exports.getAllChats = async (req, res) => {
   try {
     const chats = await Chat.find().populate(
       "assignedTo",
-      "fullName email department"
+      "fullName email department",
     );
     res
       .status(200)
@@ -141,15 +141,15 @@ exports.sendMessage = async (req, res) => {
       const folder = file.mimetype.startsWith("image")
         ? "chat/images"
         : file.mimetype.startsWith("video")
-        ? "chat/videos"
-        : "chat/pdfs";
+          ? "chat/videos"
+          : "chat/pdfs";
       const fileUrl = await uploadFileToS3(file, folder);
       message.media = {
         type: file.mimetype.startsWith("image")
           ? "image"
           : file.mimetype.startsWith("video")
-          ? "video"
-          : "pdf",
+            ? "video"
+            : "pdf",
         url: fileUrl,
         fileName: file.originalname,
         fileSize: file.size,
@@ -175,7 +175,7 @@ exports.sendMessage = async (req, res) => {
 
     const populatedChat = await Chat.findById(chat._id).populate(
       "assignedTo",
-      "fullName email department"
+      "fullName email department",
     );
 
     res.status(200).json({
@@ -192,8 +192,7 @@ exports.sendMessage = async (req, res) => {
 
 exports.replyToChat = async (req, res) => {
   const { chatId } = req.params;
-  const { text, agentId } = req.body;
-  const file = req.files?.media;
+  const { text, agentId, media } = req.body;
 
   try {
     if (!mongoose.Types.ObjectId.isValid(chatId)) {
@@ -209,38 +208,13 @@ exports.replyToChat = async (req, res) => {
       timestamp: new Date(),
     };
 
-    if (file) {
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "video/mp4",
-        "video/mpeg",
-        "video/quicktime",
-        "application/pdf",
-      ];
-      if (!allowedTypes.includes(file.mimetype)) {
-        return res.status(400).json({
-          message:
-            "Invalid file type. Only images, videos, and PDFs are allowed.",
-        });
-      }
-
-      const folder = file.mimetype.startsWith("image")
-        ? "chat/images"
-        : file.mimetype.startsWith("video")
-        ? "chat/videos"
-        : "chat/pdfs";
-      const fileUrl = await uploadFileToS3(file, folder);
+    // Handle media from S3 upload (already uploaded, just add metadata)
+    if (media) {
       message.media = {
-        type: file.mimetype.startsWith("image")
-          ? "image"
-          : file.mimetype.startsWith("video")
-          ? "video"
-          : "pdf",
-        url: fileUrl,
-        fileName: file.originalname,
-        fileSize: file.size,
+        type: media.type,
+        url: media.url,
+        fileName: media.fileName,
+        fileSize: media.fileSize,
       };
     }
 
@@ -259,7 +233,7 @@ exports.replyToChat = async (req, res) => {
 
     const populatedChat = await Chat.findById(chatId).populate(
       "assignedTo",
-      "fullName email department"
+      "fullName email department",
     );
 
     res.status(200).json({
@@ -282,7 +256,7 @@ exports.getChatById = async (req, res) => {
 
     const chat = await Chat.findById(chatId).populate(
       "assignedTo",
-      "fullName email department"
+      "fullName email department",
     );
     if (!chat) return res.status(404).json({ message: "Chat not found" });
 
@@ -309,7 +283,7 @@ exports.markChatResolved = async (req, res) => {
     const chat = await Chat.findByIdAndUpdate(
       chatId,
       { status: "resolved" },
-      { new: true }
+      { new: true },
     ).populate("assignedTo", "fullName email department");
 
     if (!chat) {

@@ -84,6 +84,7 @@ const mockDataRoutes = require("./routes/mockDataRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const videoCategoryRoutes = require("./routes/videoCategoryRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);

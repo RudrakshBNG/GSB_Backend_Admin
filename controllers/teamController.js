@@ -233,6 +233,52 @@ exports.teamMemberLogin = async (req, res) => {
   }
 };
 
+exports.getCurrentTeamMember = async (req, res) => {
+  try {
+    // Extract team member ID from token
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+    let teamMemberId;
+
+    try {
+      // Decode the base64 token
+      const tokenPayload = JSON.parse(Buffer.from(token, "base64").toString());
+      teamMemberId = tokenPayload.id;
+    } catch (error) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const teamMember = await TeamMember.findById(teamMemberId)
+      .populate("department", "departmentId name description")
+      .select("-password");
+
+    if (!teamMember || !teamMember.isActive) {
+      return res.status(404).json({ message: "Team member not found" });
+    }
+
+    res.status(200).json({
+      message: "Current team member fetched successfully",
+      user: {
+        id: teamMember._id,
+        fullName: teamMember.fullName,
+        email: teamMember.email,
+        role: teamMember.role,
+        permissions: teamMember.permissions,
+        department: teamMember.department,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch current team member",
+      error: error.message,
+    });
+  }
+};
+
 exports.deleteTeamMember = async (req, res) => {
   try {
     const { id } = req.params; // team member ID

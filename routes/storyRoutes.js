@@ -33,6 +33,8 @@ router.post(
 );
 
 router.get("/", storyController.getAllStories);
+router.get("/app", storyController.getStoriesForApp);
+router.put("/toggle/:id", storyController.toggleStoryVisibility);
 router.delete("/cleanup-demo", storyController.cleanupDemoStories);
 
 module.exports = router;

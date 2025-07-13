@@ -32,21 +32,34 @@ const SUPER_ADMIN_PASSWORD = "gsbpathy123";
 exports.loginAdmin = async (req, res) => {
   const { email, password } = req.body;
   console.log("Login attempt:", email, password);
+  console.log("Expected:", SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD);
+  console.log("Email match:", email === SUPER_ADMIN_EMAIL);
+  console.log("Password match:", password === SUPER_ADMIN_PASSWORD);
+  console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
 
   try {
     // 1. Check Super Admin
     if (email === SUPER_ADMIN_EMAIL && password === SUPER_ADMIN_PASSWORD) {
+      console.log("Creating token for super admin...");
       const token = jwt.sign(
         { email, role: "super-admin" },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
+        process.env.JWT_SECRET || "default-secret",
+        { expiresIn: "1d" },
+      );
+      console.log("Token created successfully:", token ? "YES" : "NO");
+      console.log(
+        "Sending response with token:",
+        token.substring(0, 20) + "...",
       );
       return res.status(200).json({ token });
     }
 
     // 2. Check Team Member login
+    console.log("Checking team member login...");
     const user = await TeamMember.findOne({ email });
+    console.log("Team member found:", !!user);
     if (!user || user.password !== password) {
+      console.log("Team member login failed - no user or wrong password");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
@@ -124,7 +137,7 @@ exports.verifyOTP = async (req, res) => {
         role: "user",
       },
       process.env.JWT_SECRET,
-      { expiresIn: "30d" }
+      { expiresIn: "30d" },
     );
 
     // Clear OTP after successful verification

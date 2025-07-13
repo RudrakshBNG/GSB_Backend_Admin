@@ -23,7 +23,7 @@ connectDB()
     } else {
       console.log("⚠️Server starting WITHOUT database connection");
       console.log(
-        "Database-dependent features will not work until MongoDB is connected"
+        "Database-dependent features will not work until MongoDB is connected",
       );
     }
   })
@@ -39,6 +39,7 @@ const allowedOrigins = [
   "https://apis.gsbpathy.com",
   "https://main.d13yqss2i4o49v.amplifyapp.com",
   "https://admin.gsbpathy.com",
+  "https://74c479b6a8d640b4b7bb7800e74a8fe9-8ef734e1b71d48d881c634dc0.fly.dev",
 ];
 
 app.use(
@@ -54,11 +55,11 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 app.use(express.json({ limit: "100mb" }));
 app.use(
-  express.urlencoded({ limit: "100mb", extended: true, parameterLimit: 50000 })
+  express.urlencoded({ limit: "100mb", extended: true, parameterLimit: 50000 }),
 );
 app.use(express.static("public"));
 dotenv.config();
@@ -82,8 +83,12 @@ const easebuzzRoutes = require("./routes/easebuzzRoutes");
 const mockDataRoutes = require("./routes/mockDataRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const videoCategoryRoutes = require("./routes/videoCategoryRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/stories", storyRoutes);

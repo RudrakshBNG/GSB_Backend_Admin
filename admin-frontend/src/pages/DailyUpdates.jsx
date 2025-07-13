@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RefreshCw, Calendar, User, Image, Search } from "lucide-react";
+import { RefreshCw, Calendar, User, Image, Search, Eye, X } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,6 +10,9 @@ const DailyUpdates = () => {
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userUpdates, setUserUpdates] = useState([]);
 
   useEffect(() => {
     loadDailyUpdates();
@@ -23,7 +26,7 @@ const DailyUpdates = () => {
         const titleMatch = update.title
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase());
-        const nameMatch = (users[update.userId]?.fullName || "")
+        const nameMatch = (update.user?.fullName || "")
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
         return titleMatch || nameMatch;
@@ -42,25 +45,16 @@ const DailyUpdates = () => {
       const updates = response.data.dailyUpdates || [];
       console.log("Parsed updates:", updates); // Debug: Log parsed updates
 
-      // Fetch user details for each unique userId
-      const userIds = [
-        ...new Set(updates.map((update) => update.userId).filter(Boolean)),
-      ];
-      console.log("Unique user IDs:", userIds); // Debug: Log user IDs
-      const userPromises = userIds.map((userId) =>
-        axios.get(`${API_BASE}/user/${userId}`).catch((err) => {
-          console.error(`Error fetching user ${userId}:`, err.message); // Debug: Log user fetch errors
-          return { data: { user: { _id: userId, fullName: "Unknown User" } } };
-        })
-      );
-      const userResponses = await Promise.all(userPromises);
-      const userMap = userResponses.reduce((acc, res) => {
-        if (res.data.user) {
-          acc[res.data.user._id] = res.data.user;
+      // Create user map from populated user data (backend sends populated user objects)
+      const userMap = {};
+      updates.forEach((update) => {
+        if (update.user && update.user._id) {
+          userMap[update.user._id] = update.user;
+          // Also store by userId for backward compatibility
+          update.userId = update.user._id;
         }
-        return acc;
-      }, {});
-      console.log("User map:", userMap); // Debug: Log user map
+      });
+      console.log("User map from populated data:", userMap); // Debug: Log user map
       setUsers(userMap);
 
       // Debug: Log image URLs
@@ -104,8 +98,29 @@ const DailyUpdates = () => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return filteredUpdates.filter(
-      (update) => new Date(update.createdAt) >= weekAgo
+      (update) => new Date(update.createdAt) >= weekAgo,
     ).length;
+  };
+
+  const handleViewUserUpdates = async (userId) => {
+    try {
+      const user = users[userId];
+      if (!user) {
+        console.log("User not found for ID:", userId);
+        return;
+      }
+
+      // Get all updates for this user
+      const userSpecificUpdates = dailyUpdates.filter(
+        (update) => update.user?._id === userId || update.userId === userId,
+      );
+      setSelectedUser(user);
+      setUserUpdates(userSpecificUpdates);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error loading user updates:", error);
+      alert("Failed to load user updates.");
+    }
   };
 
   if (loading) {
@@ -224,8 +239,24 @@ const DailyUpdates = () => {
                     <strong>{update.title || "Untitled"}</strong>
                   </td>
                   <td>
-                    <div>
-                      {users[update.userId]?.fullName || "Unknown User"}
+                    <div
+                      onClick={() => {
+                        console.log(
+                          "Clicked user:",
+                          update.user?._id,
+                          update.user,
+                        );
+                        handleViewUserUpdates(update.user?._id);
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "var(--primary-gold)",
+                        textDecoration: "underline",
+                        fontWeight: "500",
+                      }}
+                      title="Click to view all updates from this user"
+                    >
+                      {update.user?.fullName || "Unknown User"}
                     </div>
                   </td>
                   <td>
@@ -256,7 +287,7 @@ const DailyUpdates = () => {
                           onError={(e) => {
                             console.error(
                               "Failed to load daily update image:",
-                              update.imageUrl
+                              update.imageUrl,
                             );
                             e.target.style.display = "none";
                             e.target.nextSibling.style.display = "flex";
@@ -290,6 +321,204 @@ const DailyUpdates = () => {
           </tbody>
         </table>
       </div>
+
+      {/* User Updates Modal */}
+      {showModal && selectedUser && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "var(--card-bg)",
+              padding: "30px",
+              borderRadius: "12px",
+              width: "90%",
+              maxWidth: "800px",
+              maxHeight: "80vh",
+              border: "1px solid var(--border-color)",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Modal Header */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+                borderBottom: "1px solid var(--border-color)",
+                paddingBottom: "15px",
+              }}
+            >
+              <h2 style={{ color: "var(--primary-gold)", margin: 0 }}>
+                <User size={24} style={{ marginRight: "10px" }} />
+                All Updates from {selectedUser.fullName}
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-gray)",
+                  cursor: "pointer",
+                  padding: "5px",
+                }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* User Info */}
+            <div
+              style={{
+                background: "var(--background-dark)",
+                padding: "15px",
+                borderRadius: "8px",
+                marginBottom: "20px",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <p style={{ margin: "0 0 5px 0", color: "var(--text-white)" }}>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p style={{ margin: 0, color: "var(--text-gray)" }}>
+                <strong>Total Updates:</strong> {userUpdates.length}
+              </p>
+            </div>
+
+            {/* Updates List */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                maxHeight: "400px",
+              }}
+            >
+              {userUpdates.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    color: "var(--text-gray)",
+                  }}
+                >
+                  No updates found for this user.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "15px",
+                  }}
+                >
+                  {userUpdates.map((update, index) => (
+                    <div
+                      key={update._id || index}
+                      style={{
+                        background: "var(--background-dark)",
+                        padding: "20px",
+                        borderRadius: "8px",
+                        border: "1px solid var(--border-color)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <h4 style={{ color: "var(--primary-gold)", margin: 0 }}>
+                          {update.title || "Untitled"}
+                        </h4>
+                        <span
+                          style={{
+                            color: "var(--text-gray)",
+                            fontSize: "0.85rem",
+                          }}
+                        >
+                          {formatDate(update.createdAt)}
+                        </span>
+                      </div>
+
+                      <p
+                        style={{
+                          color: "var(--text-white)",
+                          marginBottom: "15px",
+                          lineHeight: "1.5",
+                        }}
+                      >
+                        {update.description || "No description"}
+                      </p>
+
+                      {update.imageUrl && (
+                        <div style={{ textAlign: "center" }}>
+                          <img
+                            src={update.imageUrl}
+                            alt="Update image"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "200px",
+                              objectFit: "contain",
+                              borderRadius: "8px",
+                              border: "1px solid var(--border-color)",
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: "none",
+                              padding: "20px",
+                              color: "var(--text-gray)",
+                              textAlign: "center",
+                            }}
+                          >
+                            Failed to load image
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div
+              style={{
+                marginTop: "20px",
+                paddingTop: "15px",
+                borderTop: "1px solid var(--border-color)",
+                textAlign: "right",
+              }}
+            >
+              <button
+                onClick={() => setShowModal(false)}
+                className="btn btn-secondary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

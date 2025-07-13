@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { RefreshCw, Image, User, Calendar, Star } from "lucide-react";
+import {
+  RefreshCw,
+  Image,
+  User,
+  Calendar,
+  Star,
+  ToggleLeft,
+  ToggleRight,
+} from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -35,10 +43,35 @@ const UserStories = () => {
     }
   };
 
+  const toggleStoryVisibility = async (storyId, currentStatus) => {
+    try {
+      const response = await axios.put(
+        `${API_BASE}/stories/toggle/${storyId}`,
+        {
+          showInApp: !currentStatus,
+        },
+      );
+
+      // Update the story in local state
+      setStories(
+        stories.map((story) =>
+          story._id === storyId
+            ? { ...story, showInApp: !currentStatus }
+            : story,
+        ),
+      );
+
+      console.log(response.data.message);
+    } catch (error) {
+      console.error("Error toggling story visibility:", error);
+      alert("Failed to update story visibility. Please try again.");
+    }
+  };
+
   const cleanupDemoData = async () => {
     if (
       window.confirm(
-        "Are you sure you want to remove all demo stories with broken images? This action cannot be undone."
+        "Are you sure you want to remove all demo stories with broken images? This action cannot be undone.",
       )
     ) {
       try {
@@ -114,10 +147,27 @@ const UserStories = () => {
           stories.map((story) => (
             <div key={story._id} className="story-card">
               <div className="story-header">
-                <h3>{story.title}</h3>
-                <span className="story-date">
-                  {formatDate(story.createdAt)}
-                </span>
+                <div>
+                  <h3>{story.title}</h3>
+                  <span className="story-date">
+                    {formatDate(story.createdAt)}
+                  </span>
+                </div>
+                <div className="story-toggle">
+                  <span className="toggle-label">Show in App</span>
+                  <button
+                    className={`toggle-btn ${story.showInApp ? "active" : ""}`}
+                    onClick={() =>
+                      toggleStoryVisibility(story._id, story.showInApp)
+                    }
+                  >
+                    {story.showInApp ? (
+                      <ToggleRight size={20} />
+                    ) : (
+                      <ToggleLeft size={20} />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="story-user">
@@ -140,7 +190,7 @@ const UserStories = () => {
                       onError={(e) => {
                         console.error(
                           "Failed to load before image:",
-                          story.beforeImageUrl
+                          story.beforeImageUrl,
                         );
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "block";
@@ -167,7 +217,7 @@ const UserStories = () => {
                       onError={(e) => {
                         console.error(
                           "Failed to load after image:",
-                          story.afterImageUrl
+                          story.afterImageUrl,
                         );
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "block";

@@ -40,19 +40,8 @@ const Chats = () => {
   // Hardcoded admin user fallback
   const currentUser = user || { _id: "admin", email: "admin@example.com" };
 
-  // Initialize Socket.IO
-  const socket = io(API_BASE, {
-    path: "/socket.io",
-    withCredentials: true,
-    transports: ["polling"],
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    auth: {
-      userId: currentUser._id,
-      email: currentUser.email,
-    },
-  });
+  // Initialize Socket.IO state (temporarily disabled)
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     console.log("API_BASE:", API_BASE);
@@ -62,65 +51,144 @@ const Chats = () => {
     loadChats();
     loadTeamMembers();
 
-    // Socket.IO event listeners
-    socket.on("connect", () => {
-      console.log("Socket.IO connected:", socket.id);
-      setSocketConnected(true);
-    });
+    // Socket.IO temporarily disabled to prevent errors
+    if (false && API_BASE && currentUser) {
+      console.log("🔌 Initializing Socket.IO connection...");
+      console.log("API_BASE:", API_BASE);
+      console.log("Current User:", currentUser);
 
-    socket.on("connect_error", (err) => {
-      console.error("Socket.IO connection error:", err.message, err);
-      setSocketConnected(false);
-      alert("Real-time updates disconnected. Falling back to polling.");
-    });
+      const socketClient = io(API_BASE, {
+        path: "/socket.io",
+        withCredentials: true,
+        transports: ["polling"], // Start with polling only for debugging
+        reconnection: false, // Disable reconnection for debugging
+        timeout: 10000,
+        forceNew: true,
+        autoConnect: true,
+        auth: {
+          userId: currentUser._id || "admin",
+          email: currentUser.email || "admin@example.com",
+        },
+      });
 
-    socket.on("newChat", (newChat) => {
-      console.log("New chat received:", newChat);
-      setChats((prevChats) => [newChat, ...prevChats]);
-    });
+      console.log("📡 Socket.IO client created");
+      console.log("Socket connected status:", socketClient.connected);
+      console.log("Socket connecting status:", socketClient.connecting);
 
-    socket.on("chatAssigned", ({ chatId, memberId }) => {
-      console.log("Chat assigned:", { chatId, memberId, teamMembers });
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat._id === chatId
-            ? {
-                ...chat,
-                assignedTo: teamMembers.find((m) => m._id === memberId) || {
-                  _id: memberId,
-                  fullName: "Unknown",
-                },
-              }
-            : chat
-        )
-      );
-    });
+      setSocket(socketClient);
 
-    socket.on("chatResolved", ({ chatId }) => {
-      console.log("Chat resolved:", chatId);
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat._id === chatId ? { ...chat, status: "resolved" } : chat
-        )
-      );
-    });
+      // Immediate status check
+      setTimeout(() => {
+        console.log("⏰ 2-second status check:");
+        console.log("Connected:", socketClient.connected);
+        console.log("Socket ID:", socketClient.id);
+        console.log(
+          "Socket state:",
+          socketClient.disconnected ? "disconnected" : "connected/connecting",
+        );
+      }, 2000);
 
-    socket.on("error", ({ message }) => {
-      console.error("Socket.IO error:", message);
-      alert(`Socket.IO Error: ${message}`);
-    });
+      // Socket.IO event listeners with comprehensive debugging
+      socketClient.on("connecting", () => {
+        console.log("🔄 Socket.IO connecting...");
+      });
 
-    // Cleanup on unmount
-    return () => {
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.off("newChat");
-      socket.off("chatAssigned");
-      socket.off("chatResolved");
-      socket.off("error");
-      socket.disconnect();
-    };
-  }, [API_BASE, teamMembers, currentUser]);
+      socketClient.on("connect", () => {
+        console.log("✅ Socket.IO connected successfully!");
+        console.log("Socket ID:", socketClient.id);
+        console.log("Socket connected:", socketClient.connected);
+        setSocketConnected(true);
+      });
+
+      socketClient.on("welcome", (data) => {
+        console.log("🎉 Welcome message received:", data);
+      });
+
+      socketClient.on("disconnect", (reason) => {
+        console.log("🔌 Socket.IO disconnected:", reason);
+        setSocketConnected(false);
+      });
+
+      socketClient.on("connect_error", (err) => {
+        console.error("❌ Socket.IO connection error:", err.message);
+        console.error("Error details:", err);
+        setSocketConnected(false);
+        // Silently handle connection errors - no interrupting alerts
+      });
+
+      socketClient.on("reconnect", (attemptNumber) => {
+        console.log(
+          "🔄 Socket.IO reconnected after",
+          attemptNumber,
+          "attempts",
+        );
+        setSocketConnected(true);
+      });
+
+      socketClient.on("reconnect_error", (err) => {
+        console.error("🔄❌ Socket.IO reconnection failed:", err.message);
+      });
+
+      socketClient.on("reconnect_failed", () => {
+        console.error("🔄❌ Socket.IO reconnection failed permanently");
+        setSocketConnected(false);
+      });
+
+      socketClient.on("newChat", (newChat) => {
+        console.log("New chat received:", newChat);
+        setChats((prevChats) => [newChat, ...prevChats]);
+      });
+
+      socketClient.on("chatAssigned", ({ chatId, memberId }) => {
+        console.log("Chat assigned:", { chatId, memberId, teamMembers });
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === chatId
+              ? {
+                  ...chat,
+                  assignedTo: teamMembers.find((m) => m._id === memberId) || {
+                    _id: memberId,
+                    fullName: "Unknown",
+                  },
+                }
+              : chat,
+          ),
+        );
+      });
+
+      socketClient.on("chatResolved", ({ chatId }) => {
+        console.log("Chat resolved:", chatId);
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === chatId ? { ...chat, status: "resolved" } : chat,
+          ),
+        );
+      });
+
+      socketClient.on("error", ({ message }) => {
+        console.error("Socket.IO error:", message);
+        // Removed alert - log error but don't interrupt user experience
+      });
+
+      // Cleanup on unmount
+      return () => {
+        if (socketClient) {
+          socketClient.off("connect");
+          socketClient.off("welcome");
+          socketClient.off("disconnect");
+          socketClient.off("connect_error");
+          socketClient.off("reconnect");
+          socketClient.off("reconnect_error");
+          socketClient.off("reconnect_failed");
+          socketClient.off("newChat");
+          socketClient.off("chatAssigned");
+          socketClient.off("chatResolved");
+          socketClient.off("error");
+          socketClient.disconnect();
+        }
+      };
+    }
+  }, [API_BASE, currentUser]);
 
   useEffect(() => {
     // Filter chats based on status, type, and assignment
@@ -199,7 +267,7 @@ const Chats = () => {
               ? `Bearer ${currentUser.token}`
               : undefined,
           },
-        }
+        },
       );
       setShowAssignModal(false);
       setSelectedChat(null);
@@ -221,7 +289,7 @@ const Chats = () => {
                 ? `Bearer ${currentUser.token}`
                 : undefined,
             },
-          }
+          },
         );
       } catch (error) {
         console.error("Error marking chat as resolved:", error);
@@ -295,11 +363,30 @@ const Chats = () => {
             <RefreshCw size={16} />
             Refresh
           </button>
-          {!socketConnected && (
-            <span style={{ color: "var(--accent-red)", fontSize: "0.9rem" }}>
-              Real-time updates disconnected
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "0.85rem",
+            }}
+          >
+            <div
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: "var(--accent-yellow)",
+              }}
+            ></div>
+            <span
+              style={{
+                color: "var(--accent-yellow)",
+              }}
+            >
+              Real-time disabled
             </span>
-          )}
+          </div>
         </div>
       </div>
 
@@ -448,9 +535,9 @@ const Chats = () => {
                     "customer"
                       ? "👤 Customer"
                       : chat.messages[chat.messages.length - 1].sender ===
-                        "admin"
-                      ? "👑 Admin"
-                      : "👨‍💼 Agent"}
+                          "admin"
+                        ? "👑 Admin"
+                        : "👨‍💼 Agent"}
                   </span>
                 </div>
               ) : (
@@ -635,7 +722,7 @@ const Chats = () => {
                           color: "var(--text-gray)",
                         }}
                       >
-                        {member.department || "No Department"} •{" "}
+                        {member.department || "No Department"} ���{" "}
                         {member.assignedChats?.length || 0} chats
                       </div>
                     </div>

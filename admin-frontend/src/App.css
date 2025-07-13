@@ -81,6 +81,39 @@ body {
   font-size: 0.85rem;
 }
 
+.story-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-label {
+  color: var(--text-gray);
+  font-size: 0.85rem;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  transition: color 0.3s ease;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-btn.active {
+  color: var(--accent-green);
+}
+
+.toggle-btn:not(.active) {
+  color: var(--accent-red);
+}
+
 .story-user {
   display: flex;
   align-items: center;

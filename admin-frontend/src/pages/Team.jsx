@@ -7,6 +7,8 @@ import {
   Trash2,
   Search,
   MessageSquare,
+  Shield,
+  Settings,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -19,8 +21,10 @@ const Team = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showDepartmentModal, setShowDepartmentModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [editingMember, setEditingMember] = useState(null);
   const [editingDepartment, setEditingDepartment] = useState(null);
+  const [permissionsMember, setPermissionsMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [membersPerPage] = useState(8);
@@ -51,8 +55,8 @@ const Team = () => {
           member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
           member.department.some((dept) =>
-            dept.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
+            dept.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          ),
       );
     }
 
@@ -122,7 +126,7 @@ const Team = () => {
       if (editingMember) {
         await axios.put(
           `${API_BASE}/teams/update/${editingMember._id}`,
-          payload
+          payload,
         );
       } else {
         await axios.post(`${API_BASE}/teams/add-member`, payload);
@@ -141,7 +145,7 @@ const Team = () => {
       console.error("Error saving team member:", error);
       alert(
         error.response?.data?.message ||
-          "Error saving team member. Please try again."
+          "Error saving team member. Please try again.",
       );
     }
   };
@@ -168,7 +172,7 @@ const Team = () => {
         console.error("Error deleting team member:", error);
         alert(
           error.response?.data?.message ||
-            "Error deleting team member. Please try again."
+            "Error deleting team member. Please try again.",
         );
       }
     }
@@ -186,7 +190,7 @@ const Team = () => {
       if (editingDepartment) {
         await axios.put(
           `${API_BASE}/dept/update/${editingDepartment.departmentId}`,
-          payload
+          payload,
         );
       } else {
         await axios.post(`${API_BASE}/dept/add`, payload);
@@ -200,7 +204,7 @@ const Team = () => {
       console.error("Error saving department:", error);
       alert(
         error.response?.data?.message ||
-          "Error saving department. Please try again."
+          "Error saving department. Please try again.",
       );
     }
   };
@@ -214,7 +218,7 @@ const Team = () => {
         console.error("Error deleting department:", error);
         alert(
           error.response?.data?.message ||
-            "Error deleting department. Please try again."
+            "Error deleting department. Please try again.",
         );
       }
     }
@@ -234,9 +238,51 @@ const Team = () => {
   const indexOfFirstMember = indexOfLastMember - membersPerPage;
   const currentMembers = filteredMembers.slice(
     indexOfFirstMember,
-    indexOfLastMember
+    indexOfLastMember,
   );
   const totalPages = Math.ceil(filteredMembers.length / membersPerPage);
+
+  // Permission handling functions
+  const handlePermissions = (member) => {
+    setPermissionsMember({
+      ...member,
+      permissions: member.permissions || {},
+      role: member.role || "team_member",
+    });
+    setShowPermissionsModal(true);
+  };
+
+  const handleSavePermissions = async () => {
+    try {
+      await axios.put(
+        `${API_BASE}/teams/permissions/${permissionsMember._id}`,
+        {
+          permissions: permissionsMember.permissions,
+          role: permissionsMember.role,
+        },
+      );
+
+      // Update local state
+      setTeamMembers(
+        teamMembers.map((member) =>
+          member._id === permissionsMember._id
+            ? {
+                ...member,
+                permissions: permissionsMember.permissions,
+                role: permissionsMember.role,
+              }
+            : member,
+        ),
+      );
+
+      setShowPermissionsModal(false);
+      setPermissionsMember(null);
+      alert("Permissions updated successfully!");
+    } catch (error) {
+      console.error("Error updating permissions:", error);
+      alert("Failed to update permissions. Please try again.");
+    }
+  };
 
   if (loading) {
     return <div className="loading">Loading team members...</div>;
@@ -338,7 +384,7 @@ const Team = () => {
             <h3>
               {teamMembers.reduce(
                 (total, m) => total + (m.assignedChats?.length || 0),
-                0
+                0,
               )}
             </h3>
             <p>Total Assigned Chats</p>
@@ -352,7 +398,7 @@ const Team = () => {
                   ...new Set(
                     teamMembers
                       .flatMap((m) => m.department.map((d) => d.name))
-                      .filter((d) => d)
+                      .filter((d) => d),
                   ),
                 ].length
               }
@@ -416,12 +462,25 @@ const Team = () => {
                     <button
                       className="action-btn btn-edit"
                       onClick={() => handleEdit(member)}
+                      title="Edit Member"
                     >
                       <Edit size={14} />
                     </button>
                     <button
+                      className="action-btn btn-primary"
+                      onClick={() => handlePermissions(member)}
+                      title="Manage Permissions"
+                      style={{
+                        background: "var(--primary-gold)",
+                        borderColor: "var(--primary-gold)",
+                      }}
+                    >
+                      <Shield size={14} />
+                    </button>
+                    <button
                       className="action-btn btn-delete"
                       onClick={() => handleDelete(member._id)}
+                      title="Delete Member"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -554,28 +613,44 @@ const Team = () => {
                 </select>
               </div>
 
-              {!editingMember && (
-                <div
+              <div style={{ marginBottom: "15px" }}>
+                <label
                   style={{
-                    background: "var(--background-light)",
-                    padding: "15px",
-                    borderRadius: "8px",
-                    marginBottom: "15px",
+                    color: "var(--text-white)",
+                    marginBottom: "8px",
+                    display: "block",
                   }}
                 >
-                  <p
-                    style={{
-                      color: "var(--text-gray)",
-                      fontSize: "0.9rem",
-                      margin: 0,
-                    }}
-                  >
-                    <strong>Default Password:</strong> gsbpathy123
-                    <br />
-                    Team member can change this after first login.
-                  </p>
-                </div>
-              )}
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter password for team member"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    background: "var(--input-bg)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "6px",
+                    color: "var(--text-white)",
+                    fontSize: "14px",
+                  }}
+                  required
+                />
+                <p
+                  style={{
+                    color: "var(--text-gray)",
+                    fontSize: "0.8rem",
+                    margin: "5px 0 0 0",
+                  }}
+                >
+                  Team member will use this password to login
+                </p>
+              </div>
 
               <div
                 style={{
@@ -769,6 +844,169 @@ const Team = () => {
                 className="btn btn-secondary"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Permissions Modal */}
+      {showPermissionsModal && permissionsMember && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "var(--card-bg)",
+              padding: "30px",
+              borderRadius: "12px",
+              width: "90%",
+              maxWidth: "600px",
+              border: "1px solid var(--border-color)",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+            <h2 style={{ color: "var(--primary-gold)", marginBottom: "20px" }}>
+              <Shield size={24} style={{ marginRight: "10px" }} />
+              Permissions for {permissionsMember.fullName}
+            </h2>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label
+                style={{
+                  color: "var(--text-white)",
+                  marginBottom: "10px",
+                  display: "block",
+                }}
+              >
+                Role
+              </label>
+              <select
+                value={permissionsMember.role || "team_member"}
+                onChange={(e) =>
+                  setPermissionsMember({
+                    ...permissionsMember,
+                    role: e.target.value,
+                  })
+                }
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  background: "var(--input-bg)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "6px",
+                  color: "var(--text-white)",
+                  marginBottom: "15px",
+                }}
+              >
+                <option value="team_member">Team Member</option>
+                <option value="admin">Admin</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "20px" }}>
+              <h3 style={{ color: "var(--text-white)", marginBottom: "15px" }}>
+                Module Permissions
+              </h3>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: "15px",
+                }}
+              >
+                {Object.entries({
+                  dashboard: "Dashboard",
+                  users: "User Management",
+                  stories: "User Stories",
+                  dailyUpdates: "Daily Updates",
+                  consultations: "Consultations",
+                  chats: "Chat Management",
+                  teams: "Team Management",
+                  videos: "Video Content",
+                  dietPlans: "Diet Plans",
+                  products: "Product Management",
+                  orders: "Order Management",
+                  payments: "Payment Management",
+                  notifications: "Notifications",
+                }).map(([key, label]) => (
+                  <div
+                    key={key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px",
+                      background: "var(--background-dark)",
+                      borderRadius: "6px",
+                      border: "1px solid var(--border-color)",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      id={`permission-${key}`}
+                      checked={permissionsMember.permissions?.[key] || false}
+                      onChange={(e) =>
+                        setPermissionsMember({
+                          ...permissionsMember,
+                          permissions: {
+                            ...permissionsMember.permissions,
+                            [key]: e.target.checked,
+                          },
+                        })
+                      }
+                      style={{ accentColor: "var(--primary-gold)" }}
+                    />
+                    <label
+                      htmlFor={`permission-${key}`}
+                      style={{
+                        color: "var(--text-white)",
+                        fontSize: "0.9rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "flex-end",
+                marginTop: "20px",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setShowPermissionsModal(false);
+                  setPermissionsMember(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePermissions}
+                className="btn btn-primary"
+              >
+                Save Permissions
               </button>
             </div>
           </div>

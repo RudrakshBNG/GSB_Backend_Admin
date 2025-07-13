@@ -7,6 +7,7 @@ import {
   Mail,
   AlertCircle,
   Search,
+  UserPlus,
 } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -15,6 +16,7 @@ const Consultations = () => {
   const { API_BASE } = useAuth();
   const [consultations, setConsultations] = useState([]);
   const [filteredConsultations, setFilteredConsultations] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("");
   const [assignFilter, setAssignFilter] = useState("all");
@@ -22,6 +24,7 @@ const Consultations = () => {
 
   useEffect(() => {
     loadConsultations();
+    loadTeamMembers();
   }, []);
 
   useEffect(() => {
@@ -31,7 +34,7 @@ const Consultations = () => {
     // Apply status filter (if used)
     if (statusFilter) {
       filtered = filtered.filter(
-        (consultation) => consultation.status === statusFilter
+        (consultation) => consultation.status === statusFilter,
       );
     }
 
@@ -69,7 +72,7 @@ const Consultations = () => {
       setLoading(true);
       console.log(
         "Fetching consultations from:",
-        `${API_BASE}/consultancy/all`
+        `${API_BASE}/consultancy/all`,
       ); // Debug: Log API URL
       const response = await axios.get(`${API_BASE}/consultancy/all`);
       console.log("Raw response:", response.data); // Debug: Log full response
@@ -90,6 +93,42 @@ const Consultations = () => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  };
+
+  const loadTeamMembers = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/teams`);
+      setTeamMembers(response.data.data || []);
+    } catch (error) {
+      console.error("Error loading team members:", error);
+    }
+  };
+
+  const assignTeamMember = async (consultationId, teamMemberId) => {
+    try {
+      await axios.put(`${API_BASE}/consultancy/${consultationId}/assign`, {
+        assignedTo: teamMemberId || null,
+      });
+
+      // Update local state
+      setConsultations(
+        consultations.map((consultation) =>
+          consultation._id === consultationId
+            ? {
+                ...consultation,
+                assignedTo: teamMemberId
+                  ? teamMembers.find((tm) => tm._id === teamMemberId)
+                  : null,
+              }
+            : consultation,
+        ),
+      );
+
+      console.log("Team member assigned successfully");
+    } catch (error) {
+      console.error("Error assigning team member:", error);
+      alert("Failed to assign team member. Please try again.");
+    }
   };
 
   const getStatusClass = (status) => {
@@ -269,7 +308,30 @@ const Consultations = () => {
                         : consultation.message || "N/A"}
                     </div>
                   </td>
-                  <td>{consultation.assignedTo?.fullName || "Unassigned"}</td>
+                  <td>
+                    <select
+                      value={consultation.assignedTo?._id || ""}
+                      onChange={(e) =>
+                        assignTeamMember(consultation._id, e.target.value)
+                      }
+                      style={{
+                        padding: "6px 8px",
+                        background: "var(--input-bg)",
+                        border: "1px solid var(--border-color)",
+                        borderRadius: "4px",
+                        color: "var(--text-white)",
+                        fontSize: "0.85rem",
+                        minWidth: "120px",
+                      }}
+                    >
+                      <option value="">Unassigned</option>
+                      {teamMembers.map((member) => (
+                        <option key={member._id} value={member._id}>
+                          {member.fullName}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   {/* <td>
                     <span
                       className={`flag-badge ${getStatusClass(consultation.status)}`}

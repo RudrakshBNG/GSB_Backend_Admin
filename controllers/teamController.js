@@ -43,7 +43,7 @@ exports.addTeamMember = async (req, res) => {
     // Populate department details in the response
     const populatedMember = await TeamMember.findById(newMember._id).populate(
       "department",
-      "departmentId name description"
+      "departmentId name description",
     );
     res.status(201).json({
       message: "Team member added successfully",
@@ -140,7 +140,7 @@ exports.updateTeamMember = async (req, res) => {
     const team = await TeamMember.findByIdAndUpdate(
       id,
       { $set: updatedData },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).populate("department", "departmentId name description");
 
     if (!team) {
@@ -157,6 +157,83 @@ exports.updateTeamMember = async (req, res) => {
       .json({ message: "Failed to update team member", error: error.message });
   }
 };
+exports.updatePermissions = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { permissions, role } = req.body;
+
+    const updateData = { updatedAt: new Date() };
+    if (permissions) updateData.permissions = permissions;
+    if (role) updateData.role = role;
+
+    const teamMember = await TeamMember.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate("department", "departmentId name description");
+
+    if (!teamMember) {
+      return res.status(404).json({ message: "Team member not found" });
+    }
+
+    res.status(200).json({
+      message: "Permissions updated successfully",
+      data: teamMember,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update permissions",
+      error: error.message,
+    });
+  }
+};
+
+exports.teamMemberLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const teamMember = await TeamMember.findOne({
+      email,
+      isActive: true,
+    }).populate("department", "departmentId name description");
+
+    if (!teamMember || teamMember.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Update last login
+    teamMember.lastLogin = new Date();
+    await teamMember.save();
+
+    // Generate JWT token (you might want to use actual JWT here)
+    const token = Buffer.from(
+      JSON.stringify({
+        id: teamMember._id,
+        email: teamMember.email,
+        role: teamMember.role,
+        timestamp: Date.now(),
+      }),
+    ).toString("base64");
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        id: teamMember._id,
+        fullName: teamMember.fullName,
+        email: teamMember.email,
+        role: teamMember.role,
+        permissions: teamMember.permissions,
+        department: teamMember.department,
+      },
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Login failed",
+      error: error.message,
+    });
+  }
+};
+
 exports.deleteTeamMember = async (req, res) => {
   try {
     const { id } = req.params; // team member ID

@@ -20,23 +20,103 @@ import { useAuth } from "../context/AuthContext";
 
 const Sidebar = () => {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
-  const menuItems = [
-    { path: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { path: "/users", icon: Users, label: "Users" },
-    { path: "/payments", icon: CreditCard, label: "Payments" },
-    { path: "/user-stories", icon: BookOpen, label: "User Stories" },
-    { path: "/videos", icon: Play, label: "Videos" },
-    { path: "/diet-plans", icon: FileText, label: "Diet Plans" },
-    { path: "/products", icon: Package, label: "Products" },
-    { path: "/team", icon: UserCheck, label: "Team" },
-    { path: "/chats", icon: MessageSquare, label: "Chats" },
-    { path: "/notifications", icon: Bell, label: "Notifications" },
-    { path: "/daily-updates", icon: Calendar, label: "Daily Updates" },
-    { path: "/consultations", icon: Stethoscope, label: "Consultations" },
-    { path: "/orders", icon: ShoppingCart, label: "Orders" },
+  const allMenuItems = [
+    {
+      path: "/dashboard",
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      permission: "dashboard",
+    },
+    { path: "/users", icon: Users, label: "Users", permission: "users" },
+    {
+      path: "/payments",
+      icon: CreditCard,
+      label: "Payments",
+      permission: "payments",
+    },
+    {
+      path: "/user-stories",
+      icon: BookOpen,
+      label: "User Stories",
+      permission: "stories",
+    },
+    { path: "/videos", icon: Play, label: "Videos", permission: "videos" },
+    {
+      path: "/diet-plans",
+      icon: FileText,
+      label: "Diet Plans",
+      permission: "dietPlans",
+    },
+    {
+      path: "/products",
+      icon: Package,
+      label: "Products",
+      permission: "products",
+    },
+    { path: "/team", icon: UserCheck, label: "Team", permission: "teams" },
+    {
+      path: "/chats",
+      icon: MessageSquare,
+      label: "Chats",
+      permission: "chats",
+    },
+    {
+      path: "/notifications",
+      icon: Bell,
+      label: "Notifications",
+      permission: "notifications",
+    },
+    {
+      path: "/daily-updates",
+      icon: Calendar,
+      label: "Daily Updates",
+      permission: "dailyUpdates",
+    },
+    {
+      path: "/consultations",
+      icon: Stethoscope,
+      label: "Consultations",
+      permission: "consultations",
+    },
+    {
+      path: "/orders",
+      icon: ShoppingCart,
+      label: "Orders",
+      permission: "orders",
+    },
   ];
+
+  // Check if user has permission for a specific module
+  const hasPermission = (permission) => {
+    // If no user is logged in, deny access
+    if (!user) {
+      return false;
+    }
+
+    // Super admin or admin has access to all modules
+    if (user?.role === "super-admin" || user?.role === "admin") {
+      return true;
+    }
+
+    // For hardcoded admin email (temporary fix)
+    if (user?.email === "admin@gsbpathy.com") {
+      return true;
+    }
+
+    // Team members need specific permissions
+    if (user?.permissions && user.permissions[permission]) {
+      return user.permissions[permission].read === true;
+    }
+
+    return false;
+  };
+
+  // Filter menu items based on permissions
+  const menuItems = allMenuItems.filter((item) =>
+    hasPermission(item.permission),
+  );
 
   const handleLogout = () => {
     logout();

@@ -10,8 +10,8 @@ import {
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const ChatInterface = ({ chatId, onBack, socket }) => {
-  const { API_BASE } = useAuth();
+const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
+  const { API_BASE, user } = useAuth();
   const [chat, setChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -22,16 +22,17 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    // Load initial chat data regardless of socket status
+    loadChat();
+
     if (chatId && socket) {
+      console.log("📨 Joining chat room:", chatId);
       // Join the chat room
       socket.emit("joinChat", {
         chatId,
         userType: "agent",
         userId: "admin", // Replace with actual agent ID from auth context
       });
-
-      // Load initial chat data
-      loadChat();
 
       // Socket.IO event listeners
       socket.on("newMessage", ({ chatId: incomingChatId, message }) => {
@@ -138,43 +139,127 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
 
     try {
       setSending(true);
-      const formData = new FormData();
-      if (newMessage.trim()) {
-        formData.append("text", newMessage); // Only append text if not empty
-      }
-      formData.append("agentId", user?._id || "admin");
+
+      // Temporarily disable file uploads to fix technical issues
       if (selectedFile) {
-        formData.append("media", selectedFile); // Ensure field name matches backend
+        alert(
+          "File upload is temporarily disabled while we fix technical issues. Please send text messages only.",
+        );
+        setSending(false);
+        return;
       }
 
-      // Debug: Log FormData contents
-      for (let [key, value] of formData.entries()) {
-        console.log(`FormData: ${key}=${value}`);
+      // Check if we have content to send
+      if (!newMessage.trim() && !selectedFile) {
+        alert("Please enter a message or select a file to send.");
+        setSending(false);
+        return;
       }
 
+      console.log("=== SENDING MESSAGE ===");
+      console.log("Chat ID:", chatId);
+      console.log("Message:", newMessage.trim());
+      console.log("Selected file:", selectedFile);
+      console.log("Agent ID:", (currentUser || user)?._id || "admin");
+      console.log("===============================");
+
+      let mediaData = null;
+
+      // If file is selected, upload to S3 first
+      if (selectedFile) {
+        try {
+          console.log("Uploading file to S3...");
+
+          // Determine S3 folder based on file type
+          let s3Folder = "chat-images";
+          let mediaType = "image";
+
+          if (selectedFile.type.startsWith("video/")) {
+            s3Folder = "chat-videos";
+            mediaType = "video";
+          } else if (selectedFile.type === "application/pdf") {
+            s3Folder = "chat-pdf";
+            mediaType = "pdf";
+          }
+
+          // Upload file to S3
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          formData.append("folder", s3Folder);
+
+          const uploadResponse = await axios.post(
+            `${API_BASE}/upload/s3`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
+              },
+            },
+          );
+
+          const s3Url = uploadResponse.data.fileUrl;
+          console.log("File uploaded to S3:", s3Url);
+
+          mediaData = {
+            type: mediaType,
+            url: s3Url,
+            fileName: selectedFile.name,
+            fileSize: selectedFile.size,
+          };
+        } catch (uploadError) {
+          console.error("S3 upload failed:", uploadError);
+          alert("Failed to upload file. Please try again.");
+          setSending(false);
+          return;
+        }
+      }
+
+      // Send message with S3 URL (not file)
       const response = await axios.post(
         `${API_BASE}/chat/${chatId}/reply`,
-        formData,
+        {
+          text: newMessage.trim() || "",
+          agentId: (currentUser || user)?._id || "admin",
+          media: mediaData, // Send S3 URL and metadata
+        },
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            // Add Authorization header if needed
-            // Authorization: `Bearer ${user?.token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
           },
-        }
+        },
       );
 
       console.log("Message sent successfully:", response.data);
       setNewMessage("");
       setSelectedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // Reload chat to see the new message
+      loadChat();
     } catch (error) {
-      console.error("Error sending message:", error.response?.data || error);
-      alert(
-        `Error sending message: ${
-          error.response?.data?.message || "Please try again."
-        }`
+      console.error("Full error object:", error);
+      console.error("Error response:", JSON.stringify(error.response, null, 2));
+      console.error(
+        "Error response data:",
+        JSON.stringify(error.response?.data, null, 2),
       );
+      console.error("Error response status:", error.response?.status);
+      console.error("Error response statusText:", error.response?.statusText);
+      console.error("Error message:", error.message);
+
+      let errorMessage = "Please try again.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.statusText) {
+        errorMessage = `${error.response.status}: ${error.response.statusText}`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(`Error sending message: ${errorMessage}`);
     } finally {
       setSending(false);
     }
@@ -205,7 +290,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
       ];
       if (!allowedTypes.includes(file.type)) {
         alert(
-          "Only JPEG, PNG, WebP, MP4, MPEG, QuickTime, or PDF files are allowed."
+          "Only JPEG, PNG, WebP, MP4, MPEG, QuickTime, or PDF files are allowed.",
         );
         return;
       }
@@ -225,11 +310,15 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
   };
 
   const handleTyping = () => {
-    socket.emit("typing", { chatId, userType: "agent", userId: "admin" });
+    if (socket) {
+      socket.emit("typing", { chatId, userType: "agent", userId: "admin" });
+    }
   };
 
   const handleStopTyping = () => {
-    socket.emit("stopTyping", { chatId, userType: "agent", userId: "admin" });
+    if (socket) {
+      socket.emit("stopTyping", { chatId, userType: "agent", userId: "admin" });
+    }
   };
 
   const formatTime = (dateString) => {
@@ -528,6 +617,7 @@ const ChatInterface = ({ chatId, onBack, socket }) => {
                   justifyContent: "center",
                   padding: 0,
                 }}
+                title="Upload image, video, or PDF"
               >
                 <Upload size={18} />
               </button>

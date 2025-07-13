@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Payments from "./pages/Payments";
@@ -70,97 +71,121 @@ function App() {
               <Route
                 path="/users"
                 element={
-                  <AppLayout>
-                    <Users />
-                  </AppLayout>
+                  <ProtectedRoute permission="users">
+                    <AppLayout>
+                      <Users />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/payments"
                 element={
-                  <AppLayout>
-                    <Payments />
-                  </AppLayout>
+                  <ProtectedRoute permission="payments">
+                    <AppLayout>
+                      <Payments />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/videos"
                 element={
-                  <AppLayout>
-                    <Videos />
-                  </AppLayout>
+                  <ProtectedRoute permission="videos">
+                    <AppLayout>
+                      <Videos />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/diet-plans"
                 element={
-                  <AppLayout>
-                    <DietPlans />
-                  </AppLayout>
+                  <ProtectedRoute permission="dietPlans">
+                    <AppLayout>
+                      <DietPlans />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/products"
                 element={
-                  <AppLayout>
-                    <Products />
-                  </AppLayout>
+                  <ProtectedRoute permission="products">
+                    <AppLayout>
+                      <Products />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/daily-updates"
                 element={
-                  <AppLayout>
-                    <DailyUpdates />
-                  </AppLayout>
+                  <ProtectedRoute permission="dailyUpdates">
+                    <AppLayout>
+                      <DailyUpdates />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/consultations"
                 element={
-                  <AppLayout>
-                    <Consultations />
-                  </AppLayout>
+                  <ProtectedRoute permission="consultations">
+                    <AppLayout>
+                      <Consultations />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/orders"
                 element={
-                  <AppLayout>
-                    <Orders />
-                  </AppLayout>
+                  <ProtectedRoute permission="orders">
+                    <AppLayout>
+                      <Orders />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/team"
                 element={
-                  <AppLayout>
-                    <Team />
-                  </AppLayout>
+                  <ProtectedRoute permission="teams">
+                    <AppLayout>
+                      <Team />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/chats"
                 element={
-                  <AppLayout>
-                    <Chats />
-                  </AppLayout>
+                  <ProtectedRoute permission="chats">
+                    <AppLayout>
+                      <Chats />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/notifications"
                 element={
-                  <AppLayout>
-                    <Notifications />
-                  </AppLayout>
+                  <ProtectedRoute permission="notifications">
+                    <AppLayout>
+                      <Notifications />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route
                 path="/user-stories"
                 element={
-                  <AppLayout>
-                    <UserStories />
-                  </AppLayout>
+                  <ProtectedRoute permission="stories">
+                    <AppLayout>
+                      <UserStories />
+                    </AppLayout>
+                  </ProtectedRoute>
                 }
               />
               <Route path="*" element={<Navigate to="/" replace />} />

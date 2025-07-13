@@ -172,6 +172,7 @@ const Payments = () => {
               <th>Type</th>
               <th>Method</th>
               <th>Transaction ID</th>
+              <th>Easebuzz ID</th>
               <th>Date</th>
               <th>Status</th>
             </tr>
@@ -179,7 +180,7 @@ const Payments = () => {
           <tbody>
             {filteredPayments.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
+                <td colSpan="8" style={{ textAlign: "center" }}>
                   No payments found
                 </td>
               </tr>
@@ -209,6 +210,15 @@ const Payments = () => {
                   <td>{payment.paymentMethod}</td>
                   <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
                     {payment.transactionId}
+                  </td>
+                  <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
+                    {payment.easebuzzPaymentId ? (
+                      <span style={{ color: "var(--primary-gold)" }}>
+                        {payment.easebuzzPaymentId}
+                      </span>
+                    ) : (
+                      <span style={{ color: "var(--text-gray)" }}>N/A</span>
+                    )}
                   </td>
                   <td>
                     {formatDate(payment.paymentDate || payment.createdAt)}

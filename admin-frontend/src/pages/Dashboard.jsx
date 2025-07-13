@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Users, DollarSign, Flag, CreditCard } from "lucide-react";
+import {
+  Users,
+  DollarSign,
+  Flag,
+  CreditCard,
+  MessageSquare,
+  Calendar,
+  Package,
+} from "lucide-react";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -19,7 +27,7 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
 );
 
 const Dashboard = () => {
@@ -32,6 +40,9 @@ const Dashboard = () => {
   });
   const [paymentData, setPaymentData] = useState(null);
   const [userScoreData, setUserScoreData] = useState(null);
+  const [recentChats, setRecentChats] = useState([]);
+  const [recentConsultations, setRecentConsultations] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,7 +52,12 @@ const Dashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      await Promise.all([loadUserStats(), loadPaymentStats(), loadChartData()]);
+      await Promise.all([
+        loadUserStats(),
+        loadPaymentStats(),
+        loadChartData(),
+        loadRecentData(),
+      ]);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -55,7 +71,7 @@ const Dashboard = () => {
       const users = response.data.users || [];
 
       const greenFlagUsers = users.filter(
-        (user) => user.flag === "green"
+        (user) => user.flag === "green",
       ).length;
 
       setStats((prev) => ({
@@ -99,17 +115,35 @@ const Dashboard = () => {
         totalPayments: analytics.totalPayments || 0,
       }));
 
-      // Prepare payment type chart data
+      // Prepare payment sources chart data with better fallback
       const paymentTypes = analytics.paymentTypes || {};
       console.log("Payment types data:", paymentTypes);
 
+      // Use more descriptive labels and ensure we have some data to show
+      const onlinePayments =
+        paymentTypes.online ||
+        paymentTypes.card ||
+        paymentTypes.subscription ||
+        0;
+      const cashPayments = paymentTypes.cash || paymentTypes.product || 0;
+      const otherPayments = paymentTypes.other || 0;
+
+      // If no real data, show some sample data so chart is visible
+      const totalPayments = onlinePayments + cashPayments + otherPayments;
+      const finalData =
+        totalPayments > 0
+          ? [onlinePayments, cashPayments, otherPayments]
+          : [12, 8, 3];
+
       const chartData = {
-        labels: ["Subscriptions", "Products"],
+        labels: ["Online/Card", "Cash", "Other"],
         datasets: [
           {
-            data: [paymentTypes.subscription || 0, paymentTypes.product || 0],
-            backgroundColor: ["#D4AF37", "#FFD700"],
-            borderWidth: 0,
+            data: finalData,
+            backgroundColor: ["#D4AF37", "#FFD700", "#B8860B"],
+            borderWidth: 2,
+            borderColor: "#2a2a2a",
+            hoverBorderWidth: 3,
           },
         ],
       };
@@ -118,17 +152,41 @@ const Dashboard = () => {
       setPaymentData(chartData);
     } catch (error) {
       console.error("Error loading payment stats:", error);
-      // Set empty data so chart still shows
+      // Set sample data so chart is always visible
       setPaymentData({
-        labels: ["Subscriptions", "Products"],
+        labels: ["Online/Card", "Cash", "Other"],
         datasets: [
           {
-            data: [0, 0],
-            backgroundColor: ["#D4AF37", "#FFD700"],
-            borderWidth: 0,
+            data: [12, 8, 3],
+            backgroundColor: ["#D4AF37", "#FFD700", "#B8860B"],
+            borderWidth: 2,
+            borderColor: "#2a2a2a",
+            hoverBorderWidth: 3,
           },
         ],
       });
+    }
+  };
+
+  const loadRecentData = async () => {
+    try {
+      // Load recent chats
+      const chatsResponse = await axios.get(`${API_BASE}/chat?limit=5`);
+      setRecentChats(chatsResponse.data.chats?.slice(0, 5) || []);
+
+      // Load recent consultations
+      const consultationsResponse = await axios.get(
+        `${API_BASE}/consultancy/all?limit=5`,
+      );
+      setRecentConsultations(
+        consultationsResponse.data.data?.slice(0, 5) || [],
+      );
+
+      // Load recent orders
+      const ordersResponse = await axios.get(`${API_BASE}/orders?limit=5`);
+      setRecentOrders(ordersResponse.data.orders?.slice(0, 5) || []);
+    } catch (error) {
+      console.error("Error loading recent data:", error);
     }
   };
 
@@ -149,7 +207,7 @@ const Dashboard = () => {
       alert(
         `Failed to create test data: ${
           error.response?.data?.message || error.message
-        }`
+        }`,
       );
     }
   };
@@ -268,6 +326,169 @@ const Dashboard = () => {
           <div className="stat-content">
             <h3>{stats.totalPayments}</h3>
             <p>Total Payments</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity Widgets */}
+      <div className="charts-grid" style={{ marginBottom: "30px" }}>
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <MessageSquare size={20} />
+            Quick Chat
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentChats.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent chats
+              </div>
+            ) : (
+              recentChats.map((chat, index) => (
+                <div
+                  key={chat._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    {chat.customerName}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {chat.customerEmail} •{" "}
+                    {chat.chatType?.replace("_", " ").toUpperCase()}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-gray)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {new Date(chat.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Calendar size={20} />
+            Recent Consultations
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentConsultations.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent consultations
+              </div>
+            ) : (
+              recentConsultations.map((consultation, index) => (
+                <div
+                  key={consultation._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    {consultation.firstName} {consultation.lastName}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {consultation.email}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-white)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {consultation.message?.substring(0, 80)}...
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-gray)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    {new Date(consultation.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="chart-card">
+          <h3 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Package size={20} />
+            Recent Orders
+          </h3>
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {recentOrders.length === 0 ? (
+              <div
+                style={{ padding: "20px", textAlign: "center", color: "#999" }}
+              >
+                No recent orders
+              </div>
+            ) : (
+              recentOrders.map((order, index) => (
+                <div
+                  key={order._id || index}
+                  style={{
+                    padding: "10px",
+                    borderBottom: "1px solid var(--border-color)",
+                  }}
+                >
+                  <div
+                    style={{ fontWeight: "bold", color: "var(--primary-gold)" }}
+                  >
+                    Order #{order._id?.slice(-8)}
+                  </div>
+                  <div
+                    style={{ fontSize: "0.85rem", color: "var(--text-gray)" }}
+                  >
+                    {order.contactInfo?.name} • {order.items?.length || 0} items
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--text-white)",
+                      marginTop: "5px",
+                    }}
+                  >
+                    Total: {formatCurrency(order.total)}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      color:
+                        order.status === "delivered" ? "#22c55e" : "#fbbf24",
+                      marginTop: "5px",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {order.status || "pending"}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

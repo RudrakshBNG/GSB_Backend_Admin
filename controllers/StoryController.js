@@ -104,6 +104,51 @@ exports.getAllStories = async (req, res) => {
   }
 };
 
+exports.toggleStoryVisibility = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { showInApp } = req.body;
+
+    const story = await Story.findByIdAndUpdate(
+      id,
+      { showInApp },
+      { new: true },
+    );
+
+    if (!story) {
+      return res.status(404).json({ message: "Story not found" });
+    }
+
+    res.status(200).json({
+      message: `Story visibility ${showInApp ? "enabled" : "disabled"} successfully`,
+      story,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update story visibility",
+      error: error.message,
+    });
+  }
+};
+
+exports.getStoriesForApp = async (req, res) => {
+  try {
+    const stories = await Story.find({ showInApp: true })
+      .populate("user", "fullName email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Stories fetched successfully",
+      stories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch stories",
+      error: error.message,
+    });
+  }
+};
+
 exports.cleanupDemoStories = async (req, res) => {
   try {
     // Remove all stories with demo bucket URLs
@@ -121,11 +166,9 @@ exports.cleanupDemoStories = async (req, res) => {
       deletedCount: result.deletedCount,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to cleanup demo stories",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Failed to cleanup demo stories",
+      error: error.message,
+    });
   }
 };

@@ -623,7 +623,7 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
               </button>
               <button
                 type="submit"
-                disabled={!newMessage.trim() || sending}
+                disabled={(!newMessage.trim() && !selectedFile) || sending}
                 className="btn btn-primary"
                 style={{
                   borderRadius: "50%",

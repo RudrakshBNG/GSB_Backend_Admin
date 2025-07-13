@@ -140,9 +140,18 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
     try {
       setSending(true);
 
+      // Temporarily disable file uploads to fix technical issues
+      if (selectedFile) {
+        alert(
+          "File upload is temporarily disabled while we fix technical issues. Please send text messages only.",
+        );
+        setSending(false);
+        return;
+      }
+
       // Check if we have content to send
-      if (!newMessage.trim() && !selectedFile) {
-        alert("Please enter a message or select a file to send.");
+      if (!newMessage.trim()) {
+        alert("Please enter a message to send.");
         setSending(false);
         return;
       }

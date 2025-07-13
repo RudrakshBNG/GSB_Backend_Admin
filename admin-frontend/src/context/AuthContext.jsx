@@ -49,14 +49,27 @@ export const AuthProvider = ({ children }) => {
             email: tokenPayload.email,
             role: tokenPayload.role,
           });
-        } else {
-          // For team members, use token data with default permissions
-          setUser({
-            id: tokenPayload.id,
-            email: tokenPayload.email,
-            role: "team-member",
-            permissions: {}, // Will be populated on login
-          });
+                } else {
+          // For team members, fetch current user data to get permissions
+          try {
+            const userResponse = await axios.get(`${API_BASE}/teams/current`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            setUser({
+              ...userResponse.data.user,
+              isTeamMember: true,
+            });
+          } catch (fetchError) {
+            console.error("Error fetching team member data:", fetchError);
+            // Fallback to token data
+            setUser({
+              id: tokenPayload.id,
+              email: tokenPayload.email,
+              role: tokenPayload.role || "team_member",
+              permissions: {}, // Will be populated on login
+              isTeamMember: true,
+            });
+          }
         }
       } catch (error) {
         console.error("Error decoding token:", error);

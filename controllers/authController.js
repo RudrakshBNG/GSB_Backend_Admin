@@ -47,6 +47,10 @@ exports.loginAdmin = async (req, res) => {
         { expiresIn: "1d" },
       );
       console.log("Token created successfully:", token ? "YES" : "NO");
+      console.log(
+        "Sending response with token:",
+        token.substring(0, 20) + "...",
+      );
       return res.status(200).json({ token });
     }
 

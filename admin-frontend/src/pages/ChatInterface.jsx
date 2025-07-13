@@ -552,8 +552,12 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
               />
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={sending}
+                onClick={() =>
+                  alert(
+                    "File upload is temporarily disabled while we fix technical issues.",
+                  )
+                }
+                disabled={true}
                 className="btn btn-secondary"
                 style={{
                   borderRadius: "50%",
@@ -563,7 +567,10 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   padding: 0,
+                  opacity: 0.5,
+                  cursor: "not-allowed",
                 }}
+                title="File upload temporarily disabled"
               >
                 <Upload size={18} />
               </button>

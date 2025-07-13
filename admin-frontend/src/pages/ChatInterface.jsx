@@ -140,15 +140,6 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
     try {
       setSending(true);
 
-      // Temporarily disable file uploads to fix technical issues
-      if (selectedFile) {
-        alert(
-          "File upload is temporarily disabled while we fix technical issues. Please send text messages only.",
-        );
-        setSending(false);
-        return;
-      }
-
       // Check if we have content to send
       if (!newMessage.trim() && !selectedFile) {
         alert("Please enter a message or select a file to send.");
@@ -307,6 +298,11 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       }
       setSelectedFile(file);
     }
+  };
+
+  const handleCancelFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleTyping = () => {
@@ -642,12 +638,59 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
               <div
                 style={{
                   marginTop: "10px",
-                  color: "var(--text-gray)",
-                  fontSize: "0.8rem",
+                  padding: "10px",
+                  background: "var(--background-light)",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border-color)",
                 }}
               >
-                Selected: {selectedFile.name} (
-                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        color: "var(--text-white)",
+                        fontSize: "0.85rem",
+                        fontWeight: "500",
+                      }}
+                    >
+                      📎 {selectedFile.name}
+                    </div>
+                    <div
+                      style={{
+                        color: "var(--text-gray)",
+                        fontSize: "0.75rem",
+                        marginTop: "2px",
+                      }}
+                    >
+                      {(selectedFile.size / 1024 / 1024).toFixed(2)} MB •{" "}
+                      {selectedFile.type.split("/")[0].toUpperCase()}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCancelFile}
+                    style={{
+                      background: "var(--accent-red)",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "white",
+                      padding: "4px 8px",
+                      fontSize: "0.75rem",
+                      cursor: "pointer",
+                      transition: "opacity 0.2s ease",
+                    }}
+                    onMouseOver={(e) => (e.target.style.opacity = "0.8")}
+                    onMouseOut={(e) => (e.target.style.opacity = "1")}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -90,27 +90,41 @@ const Sidebar = () => {
 
   // Check if user has permission for a specific module
   const hasPermission = (permission) => {
+    // Debug logging
+    console.log("=== PERMISSION CHECK DEBUG ===");
+    console.log("User object:", user);
+    console.log("Checking permission:", permission);
+    console.log("User role:", user?.role);
+    console.log("User permissions:", user?.permissions);
+    console.log("Specific permission value:", user?.permissions?.[permission]);
+
     // If no user is logged in, deny access
     if (!user) {
+      console.log("No user - denying access");
       return false;
     }
 
     // Super admin or admin has access to all modules
     if (user?.role === "super-admin" || user?.role === "admin") {
+      console.log("Super admin/admin - granting access");
       return true;
     }
 
     // For hardcoded admin email (temporary fix)
     if (user?.email === "admin@gsbpathy.com") {
+      console.log("Hardcoded admin email - granting access");
       return true;
     }
 
     // Team members need specific permissions
     if (user?.role === "team_member" && user?.permissions) {
       // Check if the permission exists and is true (boolean value)
-      return user.permissions[permission] === true;
+      const hasAccess = user.permissions[permission] === true;
+      console.log("Team member permission check result:", hasAccess);
+      return hasAccess;
     }
 
+    console.log("No matching condition - denying access");
     return false;
   };
 

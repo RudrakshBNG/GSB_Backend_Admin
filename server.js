@@ -88,6 +88,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/stories", storyRoutes);

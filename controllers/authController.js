@@ -55,8 +55,11 @@ exports.loginAdmin = async (req, res) => {
     }
 
     // 2. Check Team Member login
+    console.log("Checking team member login...");
     const user = await TeamMember.findOne({ email });
+    console.log("Team member found:", !!user);
     if (!user || user.password !== password) {
+      console.log("Team member login failed - no user or wrong password");
       return res.status(401).json({ message: "Invalid email or password" });
     }
 

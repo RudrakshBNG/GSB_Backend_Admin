@@ -57,9 +57,9 @@ exports.addTeamMember = async (req, res) => {
 
 exports.getAllTeamMembers = async (req, res) => {
   try {
-    const teamMembers = await TeamMember.find()
-      .populate("department", "departmentId name description")
-      .select("fullName email department");
+    const teamMembers = await TeamMember.find();
+    // .populate("department", "departmentId name description")
+    // .select("fullName email department");
     res.status(200).json({
       message: "Fetched team members successfully",
       count: teamMembers.length,

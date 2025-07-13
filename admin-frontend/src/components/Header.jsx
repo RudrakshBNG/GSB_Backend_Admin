@@ -6,7 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 
 const Header = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
 
   const getPageTitle = () => {
@@ -23,6 +23,10 @@ const Header = () => {
 
     return titles[location.pathname] || "Dashboard";
   };
+
+  // Determine display name based on role
+  const displayName =
+    role === "super-admin" ? user?.email : user?.fullName || "User";
 
   return (
     <header className="header">
@@ -41,7 +45,7 @@ const Header = () => {
           {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <div className="user-info">
-          <span>Welcome, Admin</span>
+          <span>Welcome, {displayName}</span>
           <div className="user-avatar">
             <UserCircle size={32} />
           </div>

@@ -56,6 +56,7 @@ const Users = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE}/user/all/scores`);
+      console.log("User data: ", response.data);
       const usersData = response.data.users || [];
       setUsers(usersData);
       setFilteredUsers(usersData);

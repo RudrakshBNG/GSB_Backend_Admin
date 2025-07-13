@@ -14,94 +14,52 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
 
-  // Use relative URLs - proxy will handle /api requests to backend
-  const API_BASE = "/api";
+  const API_BASE = "http://localhost:3000/api";
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      // Check if user is already logged in
-      const token = localStorage.getItem("adminToken");
-      if (token) {
-        try {
-          // For our base64 token format, decode it directly
-          let tokenPayload;
+    // Check if user is already logged in
+    const storedUser = localStorage.getItem("user");
+    const storedRole = localStorage.getItem("role");
+    const storedPermissions = localStorage.getItem("permissions");
 
-          // Check if it's a JWT-like token (starts with base64 data)
-          if (token.includes(".")) {
-            // JWT format
-            tokenPayload = JSON.parse(atob(token.split(".")[1]));
-          } else {
-            // Our custom base64 format
-            tokenPayload = JSON.parse(atob(token));
-          }
-
-          // Set axios default header
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-          setIsAuthenticated(true);
-
-          // Set user based on token data
-          if (
-            tokenPayload.role === "super-admin" ||
-            tokenPayload.role === "admin"
-          ) {
-            setUser({
-              email: tokenPayload.email,
-              role: tokenPayload.role,
-            });
-          } else {
-            // For team members, use token data directly
-            // Note: Full permissions will be available after fresh login
-            setUser({
-              id: tokenPayload.id,
-              email: tokenPayload.email,
-              role: tokenPayload.role || "team_member",
-              permissions: {}, // Will be populated on fresh login
-              isTeamMember: true,
-            });
-          }
-        } catch (error) {
-          console.error("Error decoding token:", error);
-          // Invalid token, remove it
-          localStorage.removeItem("adminToken");
-          delete axios.defaults.headers.common["Authorization"];
-        }
+    if (storedUser && storedRole) {
+      setIsAuthenticated(true);
+      setUser(JSON.parse(storedUser));
+      setRole(storedRole);
+      if (storedPermissions) {
+        setPermissions(JSON.parse(storedPermissions));
       }
       setLoading(false);
-    };
-
-    initializeAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, loginType) => {
     try {
-      const response = await axios.post(`${API_BASE}/auth/login`, {
+      const endpoint = loginType === "admin" ? "/admin/login" : "/teams/login";
+      const response = await axios.post(`${API_BASE}${endpoint}`, {
         email,
         password,
       });
 
-      const { token } = response.data;
+      const { user, token } = response.data;
 
-      // Store token
-      localStorage.setItem("adminToken", token);
-
-      // Set axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      // Store user data
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("role", user.role);
+      if (user.permissions) {
+        localStorage.setItem("permissions", JSON.stringify(user.permissions));
+        setPermissions(user.permissions);
+      }
 
       setIsAuthenticated(true);
-
-      // Decode token to get role information
-      try {
-        const tokenPayload = JSON.parse(atob(token.split(".")[1]));
-        setUser({
-          email: tokenPayload.email,
-          role: tokenPayload.role || "admin",
-        });
-      } catch (decodeError) {
-        // Fallback if token decode fails
-        setUser({ email, role: "admin" });
-      }
+      setUser(user);
+      setRole(user.role);
 
       return { success: true };
     } catch (error) {
@@ -113,53 +71,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const teamMemberLogin = async (email, password) => {
-    try {
-      const response = await axios.post(`${API_BASE}/teams/login`, {
-        email,
-        password,
-      });
-
-      const { token, user: teamMember } = response.data;
-
-      // Store token
-      localStorage.setItem("adminToken", token);
-
-      // Set axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      setIsAuthenticated(true);
-      setUser({
-        ...teamMember,
-        isTeamMember: true,
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error("Team member login error:", error);
-      return {
-        success: false,
-        error: error.response?.data?.message || "Login failed",
-      };
-    }
-  };
-
   const logout = () => {
-    // Remove token
-    localStorage.removeItem("adminToken");
-
-    // Remove axios default header
-    delete axios.defaults.headers.common["Authorization"];
-
+    localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    localStorage.removeItem("permissions");
     setIsAuthenticated(false);
     setUser(null);
+    setRole(null);
+    setPermissions(null);
   };
 
   const value = {
     isAuthenticated,
     user,
+    role,
+    permissions,
     login,
-    teamMemberLogin,
     logout,
     loading,
     API_BASE,
@@ -167,3 +94,86 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+// import React, { createContext, useContext, useState, useEffect } from "react";
+// import axios from "axios";
+
+// const AuthContext = createContext();
+
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (!context) {
+//     throw new Error("useAuth must be used within an AuthProvider");
+//   }
+//   return context;
+// };
+
+// export const AuthProvider = ({ children }) => {
+//   const [isAuthenticated, setIsAuthenticated] = useState(false);
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   // Set axios defaults - proxy will handle /api requests to backend
+//   const API_BASE = "http://localhost:3000/api";
+
+//   useEffect(() => {
+//     // Check if user is already logged in
+//     const token = localStorage.getItem("adminToken");
+//     if (token) {
+//       // Set axios default header
+//       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+//       setIsAuthenticated(true);
+//       setUser({ email: "admin@gsbpathy.com" }); // You can fetch user details from token
+//     }
+//     setLoading(false);
+//   }, []);
+
+//   const login = async (email, password) => {
+//     try {
+//       const response = await axios.post(`${API_BASE}/auth/login`, {
+//         email,
+//         password,
+//       });
+
+//       const { token } = response.data;
+
+//       // Store token
+//       localStorage.setItem("adminToken", token);
+
+//       // Set axios default header
+//       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+//       setIsAuthenticated(true);
+//       setUser({ email });
+
+//       return { success: true };
+//     } catch (error) {
+//       console.error("Login error:", error);
+//       return {
+//         success: false,
+//         error: error.response?.data?.message || "Login failed",
+//       };
+//     }
+//   };
+
+//   const logout = () => {
+//     // Remove token
+//     localStorage.removeItem("adminToken");
+
+//     // Remove axios default header
+//     delete axios.defaults.headers.common["Authorization"];
+
+//     setIsAuthenticated(false);
+//     setUser(null);
+//   };
+
+//   const value = {
+//     isAuthenticated,
+//     user,
+//     login,
+//     logout,
+//     loading,
+//     API_BASE,
+//   };
+
+//   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+// };

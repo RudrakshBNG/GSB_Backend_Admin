@@ -150,8 +150,8 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       }
 
       // Check if we have content to send
-      if (!newMessage.trim()) {
-        alert("Please enter a message to send.");
+      if (!newMessage.trim() && !selectedFile) {
+        alert("Please enter a message or select a file to send.");
         setSending(false);
         return;
       }
@@ -163,12 +163,65 @@ const ChatInterface = ({ chatId, onBack, socket, currentUser }) => {
       console.log("Agent ID:", (currentUser || user)?._id || "admin");
       console.log("===============================");
 
-      // Since file uploads are disabled, only handle text messages
+      let mediaData = null;
+
+      // If file is selected, upload to S3 first
+      if (selectedFile) {
+        try {
+          console.log("Uploading file to S3...");
+
+          // Determine S3 folder based on file type
+          let s3Folder = "chat-images";
+          let mediaType = "image";
+
+          if (selectedFile.type.startsWith("video/")) {
+            s3Folder = "chat-videos";
+            mediaType = "video";
+          } else if (selectedFile.type === "application/pdf") {
+            s3Folder = "chat-pdf";
+            mediaType = "pdf";
+          }
+
+          // Upload file to S3
+          const formData = new FormData();
+          formData.append("file", selectedFile);
+          formData.append("folder", s3Folder);
+
+          const uploadResponse = await axios.post(
+            `${API_BASE}/upload/s3`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${(currentUser || user)?.token || ""}`,
+              },
+            },
+          );
+
+          const s3Url = uploadResponse.data.fileUrl;
+          console.log("File uploaded to S3:", s3Url);
+
+          mediaData = {
+            type: mediaType,
+            url: s3Url,
+            fileName: selectedFile.name,
+            fileSize: selectedFile.size,
+          };
+        } catch (uploadError) {
+          console.error("S3 upload failed:", uploadError);
+          alert("Failed to upload file. Please try again.");
+          setSending(false);
+          return;
+        }
+      }
+
+      // Send message with S3 URL (not file)
       const response = await axios.post(
         `${API_BASE}/chat/${chatId}/reply`,
         {
-          text: newMessage.trim(),
+          text: newMessage.trim() || "",
           agentId: (currentUser || user)?._id || "admin",
+          media: mediaData, // Send S3 URL and metadata
         },
         {
           headers: {

@@ -106,8 +106,9 @@ const Sidebar = () => {
     }
 
     // Team members need specific permissions
-    if (user?.permissions && user.permissions[permission]) {
-      return user.permissions[permission].read === true;
+    if (user?.role === "team_member" && user?.permissions) {
+      // Check if the permission exists and is true (boolean value)
+      return user.permissions[permission] === true;
     }
 
     return false;

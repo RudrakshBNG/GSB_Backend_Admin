@@ -21,6 +21,7 @@ router.get("/:memberId/assigned-chats", getAssignedChats);
 router.put("/update/:id", updateTeamMember);
 router.put("/permissions/:id", updatePermissions);
 router.post("/login", teamMemberLogin);
+router.get("/current", getCurrentTeamMember);
 router.delete("/:id", deleteTeamMember);
 
 module.exports = router;

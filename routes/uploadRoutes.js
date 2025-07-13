@@ -10,7 +10,7 @@ const upload = multer({
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB max
   },
-}).fields([{ name: "file", maxCount: 1 }]);
+}).single("file");
 
 // S3 upload endpoint
 router.post("/s3", upload, uploadController.uploadToS3);

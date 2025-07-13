@@ -4,16 +4,14 @@ exports.uploadToS3 = async (req, res) => {
   try {
     console.log("Upload request received:");
     console.log("Body:", req.body);
-    console.log("Files:", req.files);
+    console.log("File:", req.file);
 
     const { folder } = req.body;
-    const fileArray = req.files?.file;
+    const file = req.file;
 
-    if (!fileArray || fileArray.length === 0) {
+    if (!file) {
       return res.status(400).json({ message: "No file provided" });
     }
-
-    const file = fileArray[0]; // Get first file from array
 
     if (!folder) {
       return res.status(400).json({ message: "Folder is required" });

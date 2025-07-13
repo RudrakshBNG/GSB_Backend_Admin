@@ -5,7 +5,6 @@ const Chat = require("../models/Chat");
 exports.addTeamMember = async (req, res) => {
   try {
     const { fullName, email, password, departmentId } = req.body;
-    const defaultPassword = password || "gsbpathy123";
 
     // Validate department IDs (accept single UUID or array of UUIDs)
     let departmentIds = [];
@@ -35,7 +34,7 @@ exports.addTeamMember = async (req, res) => {
     const newMember = new TeamMember({
       fullName,
       email,
-      password: defaultPassword,
+      password: password,
       department: departmentIds,
     });
 
@@ -43,7 +42,7 @@ exports.addTeamMember = async (req, res) => {
     // Populate department details in the response
     const populatedMember = await TeamMember.findById(newMember._id).populate(
       "department",
-      "departmentId name description",
+      "departmentId name description"
     );
     res.status(201).json({
       message: "Team member added successfully",
@@ -140,7 +139,7 @@ exports.updateTeamMember = async (req, res) => {
     const team = await TeamMember.findByIdAndUpdate(
       id,
       { $set: updatedData },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     ).populate("department", "departmentId name description");
 
     if (!team) {
@@ -211,7 +210,7 @@ exports.teamMemberLogin = async (req, res) => {
         email: teamMember.email,
         role: teamMember.role,
         timestamp: Date.now(),
-      }),
+      })
     ).toString("base64");
 
     res.status(200).json({

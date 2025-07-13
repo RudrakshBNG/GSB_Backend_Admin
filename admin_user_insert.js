@@ -44,7 +44,7 @@ async function createHashedAdminDocument() {
 
     console.log("\nMongoDB insert command:");
     console.log(
-      `db.admins.insertOne(${JSON.stringify(hashedAdminDocument, null, 2)})`,
+      `db.admins.insertOne(${JSON.stringify(hashedAdminDocument, null, 2)})`
     );
   } catch (error) {
     console.error("Error creating hashed password:", error);
@@ -52,7 +52,7 @@ async function createHashedAdminDocument() {
 }
 
 // Uncomment the next line to generate hashed version
-// createHashedAdminDocument();
+createHashedAdminDocument();
 
 // ===== CURRENT LOGIN CREDENTIALS =====
 console.log("\n🔑 CURRENT HARDCODED LOGIN CREDENTIALS:");
@@ -60,5 +60,5 @@ console.log("Email: admin@gsbpathy.com");
 console.log("Password: gsbpathy123");
 console.log("\nTry logging in with these credentials first!");
 console.log(
-  "The system currently uses hardcoded authentication, not database lookup.",
+  "The system currently uses hardcoded authentication, not database lookup."
 );

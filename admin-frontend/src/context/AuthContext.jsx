@@ -125,7 +125,6 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setUser({
         ...teamMember,
-        role: "team-member",
         isTeamMember: true,
       });
 

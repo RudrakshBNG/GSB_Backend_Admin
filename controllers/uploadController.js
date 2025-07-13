@@ -50,6 +50,18 @@ exports.uploadToS3 = async (req, res) => {
       });
     }
 
+    // Check AWS configuration
+    if (
+      !process.env.S3_BUCKET_NAME ||
+      !process.env.AWS_ACCESS_KEY_ID ||
+      !process.env.AWS_SECRET_ACCESS_KEY
+    ) {
+      return res.status(500).json({
+        message:
+          "AWS S3 configuration is incomplete. Missing environment variables.",
+      });
+    }
+
     console.log(`Uploading file to S3 folder: ${folder}`);
     const fileUrl = await uploadFileToS3(file, folder);
 

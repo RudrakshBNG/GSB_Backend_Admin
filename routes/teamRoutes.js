@@ -9,6 +9,7 @@ const {
   deleteTeamMember,
   updatePermissions,
   teamMemberLogin,
+  getCurrentTeamMember,
 } = require("../controllers/teamController");
 
 // Standard REST routes

@@ -20,65 +20,58 @@ export const AuthProvider = ({ children }) => {
   const API_BASE = "/api";
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      try {
-        // For our base64 token format, decode it directly
-        let tokenPayload;
+    const initializeAuth = async () => {
+      // Check if user is already logged in
+      const token = localStorage.getItem("adminToken");
+      if (token) {
+        try {
+          // For our base64 token format, decode it directly
+          let tokenPayload;
 
-        // Check if it's a JWT-like token (starts with base64 data)
-        if (token.includes(".")) {
-          // JWT format
-          tokenPayload = JSON.parse(atob(token.split(".")[1]));
-        } else {
-          // Our custom base64 format
-          tokenPayload = JSON.parse(atob(token));
-        }
+          // Check if it's a JWT-like token (starts with base64 data)
+          if (token.includes(".")) {
+            // JWT format
+            tokenPayload = JSON.parse(atob(token.split(".")[1]));
+          } else {
+            // Our custom base64 format
+            tokenPayload = JSON.parse(atob(token));
+          }
 
-        // Set axios default header
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        setIsAuthenticated(true);
+          // Set axios default header
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          setIsAuthenticated(true);
 
-        // Set user based on token data
-        if (
-          tokenPayload.role === "super-admin" ||
-          tokenPayload.role === "admin"
-        ) {
-          setUser({
-            email: tokenPayload.email,
-            role: tokenPayload.role,
-          });
-                } else {
-          // For team members, fetch current user data to get permissions
-          try {
-            const userResponse = await axios.get(`${API_BASE}/teams/current`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
+          // Set user based on token data
+          if (
+            tokenPayload.role === "super-admin" ||
+            tokenPayload.role === "admin"
+          ) {
             setUser({
-              ...userResponse.data.user,
-              isTeamMember: true,
+              email: tokenPayload.email,
+              role: tokenPayload.role,
             });
-          } catch (fetchError) {
-            console.error("Error fetching team member data:", fetchError);
-            // Fallback to token data
+          } else {
+            // For team members, use token data directly
+            // Note: Full permissions will be available after fresh login
             setUser({
               id: tokenPayload.id,
               email: tokenPayload.email,
               role: tokenPayload.role || "team_member",
-              permissions: {}, // Will be populated on login
+              permissions: {}, // Will be populated on fresh login
               isTeamMember: true,
             });
           }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+          // Invalid token, remove it
+          localStorage.removeItem("adminToken");
+          delete axios.defaults.headers.common["Authorization"];
         }
-      } catch (error) {
-        console.error("Error decoding token:", error);
-        // Invalid token, remove it
-        localStorage.removeItem("adminToken");
-        delete axios.defaults.headers.common["Authorization"];
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email, password) => {
